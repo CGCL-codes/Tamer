@@ -1,0 +1,3 @@
+    public void test_0115_while_RAC_invalid_variant() {
+        this.runConformTest(new String[] { "X.java", "public class X {\n" + "   public static void main(String[] args) { \n" + "   	int i = 0;\n" + "   	int[] vals = new int[] {2,3,5,7,9};\n" + "   	int sum = 0;\n" + "   try {\n" + "       //@ decreases  i;\n" + "       while (i < vals.length) {\n" + "             //@ decreases vals.length - i;\n" + "             while (i%2==0) \n" + "                   sum += vals[i++]; } \n" + "   } catch (Error e) {System.out.println(e);}\n" + "	}\n" + "}\n" }, "java.lang.Error: loop variant did not decrease ('i')");
+    }

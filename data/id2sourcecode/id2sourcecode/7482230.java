@@ -1,0 +1,3 @@
+    int getChannel() {
+        return channel;
+    }

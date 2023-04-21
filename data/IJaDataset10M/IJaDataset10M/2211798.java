@@ -1,0 +1,101 @@
+package com.simonstl.gorille;
+
+import com.simonstl.gorille.*;
+
+/**Generated code created by the com.simonstl.gorille.CharRulesGen class.**/
+public class AsciiRules extends com.simonstl.gorille.CharRules {
+
+    protected CharRanges ranges = new CharRanges();
+
+    public AsciiRules() {
+        CharRange range;
+        range = new CharRange(0x9);
+        ranges.addRange(range);
+        range = new CharRange(0xA);
+        ranges.addRange(range);
+        range = new CharRange(0xD);
+        ranges.addRange(range);
+        range = new CharRange(0x20, 0x7F);
+        ranges.addRange(range);
+        this.setChar(ranges);
+        ranges = new CharRanges();
+        range = new CharRange(0x9);
+        ranges.addRange(range);
+        range = new CharRange(0xA);
+        ranges.addRange(range);
+        range = new CharRange(0xD);
+        ranges.addRange(range);
+        range = new CharRange(0x20);
+        ranges.addRange(range);
+        this.setSpace(ranges);
+        ranges = new CharRanges();
+        range = new CharRange(0x0041, 0x005A);
+        ranges.addRange(range);
+        range = new CharRange(0x0061, 0x007A);
+        ranges.addRange(range);
+        this.setBaseChar(ranges);
+        ranges = new CharRanges();
+        this.setIdeographic(ranges);
+        ranges = new CharRanges();
+        this.setCombiningChar(ranges);
+        ranges = new CharRanges();
+        range = new CharRange(0x0030, 0x0039);
+        ranges.addRange(range);
+        this.setDigit(ranges);
+        ranges = new CharRanges();
+        this.setExtender(ranges);
+        ranges = new CharRanges();
+        range = new CharRange(0xA);
+        ranges.addRange(range);
+        range = new CharRange(0xD);
+        ranges.addRange(range);
+        range = new CharRange(0x20);
+        ranges.addRange(range);
+        range = new CharRange(97, 122);
+        ranges.addRange(range);
+        range = new CharRange(65, 90);
+        ranges.addRange(range);
+        range = new CharRange(48, 57);
+        ranges.addRange(range);
+        range = new CharRange(45);
+        ranges.addRange(range);
+        range = new CharRange(39);
+        ranges.addRange(range);
+        range = new CharRange(40);
+        ranges.addRange(range);
+        range = new CharRange(41);
+        ranges.addRange(range);
+        range = new CharRange(43);
+        ranges.addRange(range);
+        range = new CharRange(44);
+        ranges.addRange(range);
+        range = new CharRange(46);
+        ranges.addRange(range);
+        range = new CharRange(47);
+        ranges.addRange(range);
+        range = new CharRange(58);
+        ranges.addRange(range);
+        range = new CharRange(61);
+        ranges.addRange(range);
+        range = new CharRange(63);
+        ranges.addRange(range);
+        range = new CharRange(59);
+        ranges.addRange(range);
+        range = new CharRange(33);
+        ranges.addRange(range);
+        range = new CharRange(42);
+        ranges.addRange(range);
+        range = new CharRange(35);
+        ranges.addRange(range);
+        range = new CharRange(64);
+        ranges.addRange(range);
+        range = new CharRange(36);
+        ranges.addRange(range);
+        range = new CharRange(95);
+        ranges.addRange(range);
+        range = new CharRange(37);
+        ranges.addRange(range);
+        this.setPubidChar(ranges);
+        ranges = new CharRanges();
+    }
+}

@@ -1,0 +1,8 @@
+    public Recorded getCurrentRecording(Recorder recorder) throws ProtocolException, SQLException, IOException {
+        String[] response = Protocol40.QUERY_RECORDER(getCon(), Protocol40.QUERY_RECORDER.GET_CURRENT_RECORDING, recorder.getId());
+        int i = 0;
+        recordingInformation40 ri = new recordingInformation40(response[i++], response[i++], response[i++], response[i++], getChannel(Integer.decode(response[i++])), response[i++], response[i++], response[i++], response[i++], Commands.decodeLong(response[i++], response[i++]), new Date(Long.decode(response[i++])), new Date(Long.decode(response[i++])), Integer.decode(response[i++]), Integer.decode(response[i++]), Integer.decode(response[i++]), response[i++], Integer.decode(response[i++]), Integer.decode(response[i++]), Integer.decode(response[i++]), Integer.decode(response[i++]), Integer.decode(response[i++]), Integer.decode(response[i++]), Integer.decode(response[i++]), Integer.decode(response[i++]), Integer.decode(response[i++]), new Date(Long.decode(response[i++])), new Date(Long.decode(response[i++])), Integer.decode(response[i++]), Integer.decode(response[i++]), response[i++], Integer.decode(response[i++]), response[i++], response[i++], response[i++], Long.decode(response[i++]), Float.valueOf(response[i++]), response[i++], Integer.decode(response[i++]), response[i++], Integer.decode(response[i++]), Integer.decode(response[i++]), getDbCon().getStoragegroupByName(response[i++]), Integer.decode(response[i++]), Integer.decode(response[i++]), Integer.decode(response[i++]));
+        ri.getStoragegroup().setHostname(con.getBackendIP());
+        ri.getStoragegroup().setDirname(ri.getPathname().substring(0, ri.getPathname().lastIndexOf('/')));
+        return new Recorded(ri);
+    }

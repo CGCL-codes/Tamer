@@ -1,0 +1,83 @@
+package org.xtreemfs.babudb.index;
+
+import java.nio.ByteBuffer;
+import org.xtreemfs.foundation.buffer.ReusableBuffer;
+import org.xtreemfs.foundation.util.OutputUtils;
+
+/**
+ * A range of bytes in a buffer.
+ * 
+ * @author stender
+ */
+public class ByteRange {
+
+    private final ByteBuffer buf;
+
+    private final int startOffset;
+
+    private final int endOffset;
+
+    private final int size;
+
+    private byte[] prefix;
+
+    private ReusableBuffer rBuf;
+
+    public ByteRange(ByteBuffer buf, int startOffset, int endOffset) {
+        this.buf = buf;
+        this.startOffset = startOffset;
+        this.endOffset = endOffset;
+        this.size = endOffset - startOffset;
+        this.prefix = null;
+        assert (endOffset < buf.limit()) : "buf.limit() == " + buf.limit() + ", endOffset == " + endOffset + ", startOffset == " + startOffset + ", buf.capacity == " + buf.capacity();
+    }
+
+    public ByteBuffer getBuf() {
+        return buf;
+    }
+
+    public int getStartOffset() {
+        return startOffset;
+    }
+
+    public int getEndOffset() {
+        return endOffset;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void addPrefix(byte[] prefix) {
+        this.prefix = prefix;
+    }
+
+    public byte[] toBuffer() {
+        byte[] tmp;
+        buf.position(startOffset);
+        if (prefix == null) {
+            tmp = new byte[size];
+            buf.get(tmp);
+        } else {
+            tmp = new byte[prefix.length + size];
+            System.arraycopy(prefix, 0, tmp, 0, prefix.length);
+            buf.get(tmp, prefix.length, size);
+        }
+        return tmp;
+    }
+
+    public void setReusableBuf(ReusableBuffer rBuf) {
+        this.rBuf = rBuf;
+    }
+
+    public ReusableBuffer getReusableBuf() {
+        return rBuf;
+    }
+
+    public String toString() {
+        ReusableBuffer buffer = new ReusableBuffer(buf);
+        ReusableBuffer newBuf = buffer.createViewBuffer();
+        newBuf.range(startOffset, endOffset - startOffset);
+        return OutputUtils.byteArrayToHexString(newBuf.array());
+    }
+}

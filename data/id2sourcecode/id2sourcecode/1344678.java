@@ -1,0 +1,37 @@
+    private void $$$setupUI$$$() {
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new FormLayout("right:m:noGrow,left:4dlu:noGrow,fill:373px:grow,left:4dlu:noGrow,fill:max(d;4px):noGrow", "center:d:noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:d:grow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
+        volumeSlider = new JSlider();
+        volumeSlider.setMaximum(1);
+        volumeSlider.setPaintLabels(true);
+        volumeSlider.setPaintTicks(true);
+        volumeSlider.setSnapToTicks(false);
+        CellConstraints cc = new CellConstraints();
+        mainPanel.add(volumeSlider, cc.xy(3, 1, CellConstraints.FILL, CellConstraints.DEFAULT));
+        final JLabel label1 = new JLabel();
+        label1.setText("Volume");
+        mainPanel.add(label1, cc.xy(1, 1, CellConstraints.RIGHT, CellConstraints.DEFAULT));
+        final JLabel label2 = new JLabel();
+        label2.setText("Fractal cycles");
+        mainPanel.add(label2, cc.xy(1, 3, CellConstraints.RIGHT, CellConstraints.DEFAULT));
+        volumeValueLabel = new JLabel();
+        volumeValueLabel.setText("");
+        mainPanel.add(volumeValueLabel, new CellConstraints(5, 1, 1, 1, CellConstraints.DEFAULT, CellConstraints.DEFAULT, new Insets(0, 20, 0, 0)));
+        fractalCyclesSlider = new JSlider();
+        fractalCyclesSlider.setMajorTickSpacing(5);
+        fractalCyclesSlider.setMaximum(20);
+        fractalCyclesSlider.setMinorTickSpacing(1);
+        fractalCyclesSlider.setPaintLabels(true);
+        fractalCyclesSlider.setPaintTicks(true);
+        fractalCyclesSlider.setSnapToTicks(true);
+        fractalCyclesSlider.setValue(8);
+        mainPanel.add(fractalCyclesSlider, cc.xy(3, 3, CellConstraints.FILL, CellConstraints.DEFAULT));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        mainPanel.add(scrollPane1, cc.xyw(1, 5, 3, CellConstraints.FILL, CellConstraints.FILL));
+        scriptEP = new JEditorPane();
+        scriptEP.setText("import mercurievv.fractalsync.controller.fractalizator.AbstractFractalEngine;\nimport mercurievv.fractalsync.model.Harmonica;\n\n/**\n * User: MercurieVV\n * Date: 2009.2.3\n * Time: 23:19:56\n */\npublic class FEI extends AbstractFractalEngine {\n    protected Harmonica generateNewHarmonica(Harmonica previousHarmonica, Harmonica harmonica) {\n        Harmonica newHarmonica = new Harmonica();\n\n        Double prevHarmonicaFrequency = previousHarmonica.getFrequencyRate();\n        Double harmonicaFrequency = harmonica.getFrequencyRate();\n        Double newHarmonicaFrequency = prevHarmonicaFrequency + (harmonicaFrequency - prevHarmonicaFrequency) / 2;\n        newHarmonica.setFrequencyRate(newHarmonicaFrequency);\n\n        Double prevHarmonicaVolume = previousHarmonica.getAmplitude();\n        Double harmonicaVolume = harmonica.getAmplitude();\n        Double minVolume = Math.min(harmonicaVolume, prevHarmonicaVolume);\n        Double newHarmonicaVolume = minVolume/2;\n        newHarmonica.setAmplitude(newHarmonicaVolume);\n        return newHarmonica;\n    }\n}\n");
+        scrollPane1.setViewportView(scriptEP);
+        applyScriptButton = new JButton();
+        applyScriptButton.setText("Apply script");
+        mainPanel.add(applyScriptButton, cc.xy(3, 7, CellConstraints.CENTER, CellConstraints.DEFAULT));
+    }

@@ -1,0 +1,3 @@
+    ReadableByteChannel getChannel() {
+        return channel;
+    }

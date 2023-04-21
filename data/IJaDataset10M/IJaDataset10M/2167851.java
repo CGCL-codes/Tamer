@@ -1,0 +1,84 @@
+package dk.mirasola.systemtraining.bridgewidgets.shared.factory;
+
+import dk.mirasola.systemtraining.bridgewidgets.shared.model.BiddingSequence;
+import dk.mirasola.systemtraining.bridgewidgets.shared.model.ContractBid;
+import dk.mirasola.systemtraining.bridgewidgets.shared.model.Seat;
+import dk.mirasola.systemtraining.bridgewidgets.shared.model.SpecialBid;
+import junit.framework.TestCase;
+
+public class BiddingSequenceFactoryTest extends TestCase {
+
+    public void testStringSerialization() {
+        BiddingSequence seq = new BiddingSequence(Seat.NORTH);
+        BiddingSequence cloned;
+        cloned = BiddingSequenceFactory.stringToBiddingSequence(BiddingSequenceFactory.biddingSequenceToString(seq));
+        assertEquals("dealer", Seat.NORTH, cloned.getDealer());
+        assertEquals("roundsCount", 0, cloned.getRoundsCount());
+        assertEquals("seatToBid", Seat.NORTH, cloned.getSeatInTurn());
+        assertEquals("roundToBid", 1, cloned.getRoundInTurn());
+        assertFalse("bidding sequence finish", cloned.isFinish());
+        assertNull("lastContractBid", cloned.getLastContractBid());
+        seq.makeBid(ContractBid.ONE_CLUB);
+        seq.makeBid(SpecialBid.PAS);
+        seq.makeBid(ContractBid.ONE_HEART);
+        seq.makeBid(SpecialBid.PAS);
+        seq.makeBid(ContractBid.ONE_NOTRUMPH);
+        seq.makeBid(SpecialBid.PAS);
+        seq.makeBid(SpecialBid.PAS);
+        cloned = BiddingSequenceFactory.stringToBiddingSequence(BiddingSequenceFactory.biddingSequenceToString(seq));
+        assertEquals("dealer", Seat.NORTH, cloned.getDealer());
+        assertEquals("roundsCount", 2, cloned.getRoundsCount());
+        assertEquals("seatToBid", Seat.WEST, cloned.getSeatInTurn());
+        assertEquals("roundToBid", 2, cloned.getRoundInTurn());
+        assertEquals("north bid 1. round", ContractBid.ONE_CLUB, cloned.getBid(1, Seat.NORTH));
+        assertEquals("east bid 1. round", SpecialBid.PAS, cloned.getBid(1, Seat.EAST));
+        assertEquals("south bid 1. round", ContractBid.ONE_HEART, cloned.getBid(1, Seat.SOUTH));
+        assertEquals("west bid 1. round", SpecialBid.PAS, cloned.getBid(1, Seat.WEST));
+        assertEquals("north bid 2. round", ContractBid.ONE_NOTRUMPH, cloned.getBid(2, Seat.NORTH));
+        assertEquals("east bid 2. round", SpecialBid.PAS, cloned.getBid(2, Seat.EAST));
+        assertEquals("south bid 2. round", SpecialBid.PAS, cloned.getBid(2, Seat.SOUTH));
+        assertFalse("bidding sequence finish", cloned.isFinish());
+        assertEquals("lastContractBid", ContractBid.ONE_NOTRUMPH, cloned.getLastContractBid());
+        seq.makeBid(SpecialBid.PAS);
+        cloned = BiddingSequenceFactory.stringToBiddingSequence(BiddingSequenceFactory.biddingSequenceToString(seq));
+        assertEquals("dealer", Seat.NORTH, cloned.getDealer());
+        assertEquals("roundsCount", 2, cloned.getRoundsCount());
+        assertNull("seatToBid", cloned.getSeatInTurn());
+        assertEquals("roundToBid", -1, cloned.getRoundInTurn());
+        assertEquals("north bid 1. round", ContractBid.ONE_CLUB, cloned.getBid(1, Seat.NORTH));
+        assertEquals("east bid 1. round", SpecialBid.PAS, cloned.getBid(1, Seat.EAST));
+        assertEquals("south bid 1. round", ContractBid.ONE_HEART, cloned.getBid(1, Seat.SOUTH));
+        assertEquals("west bid 1. round", SpecialBid.PAS, cloned.getBid(1, Seat.WEST));
+        assertEquals("north bid 2. round", ContractBid.ONE_NOTRUMPH, cloned.getBid(2, Seat.NORTH));
+        assertEquals("east bid 2. round", SpecialBid.PAS, cloned.getBid(2, Seat.EAST));
+        assertEquals("south bid 2. round", SpecialBid.PAS, cloned.getBid(2, Seat.SOUTH));
+        assertEquals("west bid 2. round", SpecialBid.PAS, cloned.getBid(2, Seat.WEST));
+        assertTrue("bidding sequence finish", cloned.isFinish());
+        assertEquals("lastContractBid", ContractBid.ONE_NOTRUMPH, cloned.getLastContractBid());
+        seq = new BiddingSequence(Seat.WEST);
+        seq.makeBid(ContractBid.ONE_CLUB);
+        seq.makeBid(SpecialBid.PAS);
+        seq.makeBid(ContractBid.ONE_NOTRUMPH);
+        seq.makeBid(SpecialBid.PAS);
+        seq.makeBid(ContractBid.TWO_CLUB);
+        seq.makeBid(SpecialBid.PAS);
+        seq.makeBid(ContractBid.THREE_NOTRUMPH);
+        seq.makeBid(SpecialBid.PAS);
+        seq.makeBid(SpecialBid.PAS);
+        cloned = BiddingSequenceFactory.stringToBiddingSequence(BiddingSequenceFactory.biddingSequenceToString(seq));
+        assertEquals("dealer", Seat.WEST, cloned.getDealer());
+        assertEquals("roundsCount", 3, cloned.getRoundsCount());
+        assertEquals("seatToBid", seq.getSeatInTurn(), cloned.getSeatInTurn());
+        assertEquals("roundToBid", seq.getRoundInTurn(), cloned.getRoundInTurn());
+        assertFalse("bidding sequence finish", cloned.isFinish());
+        assertEquals("lastContractBid", ContractBid.THREE_NOTRUMPH, cloned.getLastContractBid());
+        seq.makeBid(SpecialBid.PAS);
+        cloned = BiddingSequenceFactory.stringToBiddingSequence(BiddingSequenceFactory.biddingSequenceToString(seq));
+        assertEquals("dealer", Seat.WEST, cloned.getDealer());
+        assertEquals("roundsCount", 4, cloned.getRoundsCount());
+        assertEquals("seatToBid", seq.getSeatInTurn(), cloned.getSeatInTurn());
+        assertEquals("roundToBid", seq.getRoundInTurn(), cloned.getRoundInTurn());
+        assertTrue("bidding sequence finish", cloned.isFinish());
+        assertEquals("lastContractBid", ContractBid.THREE_NOTRUMPH, cloned.getLastContractBid());
+    }
+}

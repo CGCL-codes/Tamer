@@ -1,0 +1,28 @@
+package org.allcolor.html2.parser;
+
+import org.allcolor.xml.parser.dom.ADocument;
+import java.util.Arrays;
+
+/**
+ * DOCUMENT ME!
+ *
+ * @author Quentin Anciaux
+ */
+public class CHTMLSubElement extends CHTMLElement {
+
+    static final long serialVersionUID = -547692054824888206L;
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param ownerDocument
+     */
+    public CHTMLSubElement(ADocument ownerDocument) {
+        super("sub", ownerDocument);
+        validElement = Arrays.asList(new String[] { "#PCDATA", "a", "br", "span", "bdo", "object", "applet", "img", "map", "iframe", "tt", "i", "b", "u", "s", "strike", "big", "small", "font", "basefont", "em", "strong", "dfn", "code", "q", "samp", "kbd", "var", "cite", "abbr", "acronym", "sub", "sup", "input", "select", "textarea", "label", "button", "ins", "del", "script" });
+    }
+
+    public String getDefaultParentType() {
+        return null;
+    }
+}

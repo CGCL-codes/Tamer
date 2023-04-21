@@ -1,0 +1,10 @@
+package org.apache.harmony.tests.java.lang.instrument.agents;
+
+import java.lang.instrument.Instrumentation;
+
+public class HelloWorldAgent {
+
+    public static void premain(String agentArgs, Instrumentation inst) {
+        System.out.println("Hello World");
+    }
+}

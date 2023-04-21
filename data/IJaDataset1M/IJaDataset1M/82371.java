@@ -1,0 +1,27 @@
+package net.java.sip.communicator.impl.gui.lookandfeel;
+
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.plaf.*;
+import javax.swing.plaf.basic.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+
+/**
+ * The SIPCommOptionPaneUI implementation.
+ * 
+ * @author Yana Stamcheva
+ */
+public class SIPCommOptionPaneUI extends BasicOptionPaneUI {
+
+    /**
+     * Creates a new SIPCommOptionPaneUI instance.
+     */
+    public static ComponentUI createUI(JComponent x) {
+        return new SIPCommOptionPaneUI();
+    }
+
+    public void paint(Graphics g, JComponent c) {
+        AntialiasingManager.activateAntialiasing(g);
+        super.paint(g, c);
+    }
+}

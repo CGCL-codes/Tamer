@@ -1,0 +1,3 @@
+    private static void printHelp() {
+        System.out.println("Usage: java Run Script [-options]\n" + "where options include:\n" + "    -driver <classname>     name of the driver class\n" + "    -url <name>             first part of the jdbc url\n" + "    -database <name>        second part of the jdbc url\n" + "    -user <name>            username used for connection\n" + "    -password <name>        password for this user\n" + "    -log <true/false>       write log to system out\n" + "    -batch <true/false>     allow go/print pseudo statements\n" + "    -script <script file>   reads from script file\n");
+    }

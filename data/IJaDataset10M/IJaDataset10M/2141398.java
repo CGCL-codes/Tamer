@@ -1,0 +1,93 @@
+package de.l3s.boilerpipe.extractors;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.net.URL;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import de.l3s.boilerpipe.BoilerpipeExtractor;
+import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import de.l3s.boilerpipe.document.TextDocument;
+import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
+import de.l3s.boilerpipe.sax.HTMLFetcher;
+
+/**
+ * The base class of Extractors. Also provides some helper methods to quickly
+ * retrieve the text that remained after processing.
+ * 
+ * @author Christian Kohlschütter
+ */
+public abstract class ExtractorBase implements BoilerpipeExtractor {
+
+    /**
+     * Extracts text from the HTML code given as a String.
+     * 
+     * @param html  The HTML code as a String.
+     * @return  The extracted text.
+     * @throws BoilerpipeProcessingException
+     */
+    public String getText(final String html) throws BoilerpipeProcessingException {
+        try {
+            return getText(new BoilerpipeSAXInput(new InputSource(new StringReader(html))).getTextDocument());
+        } catch (SAXException e) {
+            throw new BoilerpipeProcessingException(e);
+        }
+    }
+
+    /**
+     * Extracts text from the HTML code available from the given {@link InputSource}.
+     * 
+     * @param is The InputSource containing the HTML
+     * @return  The extracted text.
+     * @throws BoilerpipeProcessingException
+     */
+    public String getText(final InputSource is) throws BoilerpipeProcessingException {
+        try {
+            return getText(new BoilerpipeSAXInput(is).getTextDocument());
+        } catch (SAXException e) {
+            throw new BoilerpipeProcessingException(e);
+        }
+    }
+
+    /**
+     * Extracts text from the HTML code available from the given {@link URL}.
+     * NOTE: This method is mainly to be used for show case purposes. If you are
+     * going to crawl the Web, consider using {@link #getText(InputSource)}
+     * instead.
+     * 
+     * @param url  The URL pointing to the HTML code.
+     * @return  The extracted text.
+     * @throws BoilerpipeProcessingException
+     */
+    public String getText(final URL url) throws BoilerpipeProcessingException {
+        try {
+            return getText(HTMLFetcher.fetch(url).toInputSource());
+        } catch (IOException e) {
+            throw new BoilerpipeProcessingException(e);
+        }
+    }
+
+    /**
+     * Extracts text from the HTML code available from the given {@link Reader}.
+     * 
+     * @param r The Reader containing the HTML
+     * @return  The extracted text.
+     * @throws BoilerpipeProcessingException
+     */
+    public String getText(final Reader r) throws BoilerpipeProcessingException {
+        return getText(new InputSource(r));
+    }
+
+    /**
+     * Extracts text from the given {@link TextDocument} object.
+     * 
+     * @param doc The {@link TextDocument}.
+     * @return  The extracted text.
+     * @throws BoilerpipeProcessingException
+     */
+    public String getText(TextDocument doc) throws BoilerpipeProcessingException {
+        process(doc);
+        return doc.getContent();
+    }
+}

@@ -1,0 +1,3 @@
+    AsteriskChannelImpl getChannel() {
+        return channel;
+    }

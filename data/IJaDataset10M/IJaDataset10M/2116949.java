@@ -1,0 +1,81 @@
+package br.ufmg.lcc.pcollecta.view;
+
+import java.util.ArrayList;
+import java.util.List;
+import br.ufmg.lcc.arangi.dto.MenuItem;
+
+public class ApplicationMenu2 extends MenuItem {
+
+    public ApplicationMenu2() {
+        MenuItem menu1 = new MenuItem();
+        MenuItem menu2 = new MenuItem();
+        MenuItem menu3 = new MenuItem();
+        MenuItem menu4 = new MenuItem();
+        menu1.setValue("pingifes.menu.configuracao");
+        menu2.setValue("pingifes.menu.agendamento");
+        menu3.setValue("pingifes.menu.manutencao");
+        menu4.setValue("pingifes.menu.sobre");
+        List<MenuItem> children = new ArrayList<MenuItem>();
+        children.add(menu1);
+        children.add(menu2);
+        children.add(menu3);
+        children.add(menu4);
+        setChildren(children);
+        MenuItem menu11 = new MenuItem();
+        MenuItem menu12 = new MenuItem();
+        MenuItem menu13 = new MenuItem();
+        MenuItem menu14 = new MenuItem();
+        menu11.setValue("pingifes.menu.item.configuracao.repositorio");
+        menu11.setLink("/RepositorioSel.faces?event=search");
+        menu12.setValue("pingifes.menu.item.configuracao.etc");
+        menu12.setLink("/ETCSel.faces?event=open");
+        menu13.setValue("pingifes.menu.item.configuracao.processo");
+        menu13.setLink("/AdministracaoProcessoSel.faces?event=search");
+        menu14.setValue("pingifes.menu.item.configuracao.parametrosGlobais");
+        menu14.setLink("/ParametroGlobal.faces?event=search");
+        List<MenuItem> children1 = new ArrayList<MenuItem>();
+        children1.add(menu11);
+        children1.add(menu12);
+        children1.add(menu13);
+        children1.add(menu14);
+        menu1.setChildren(children1);
+        MenuItem menu21 = new MenuItem();
+        MenuItem menu22 = new MenuItem();
+        MenuItem menu23 = new MenuItem();
+        menu21.setValue("pingifes.menu.item.agendamento.agendamento");
+        menu21.setLink("/AgendamentoProcessoSel.faces?event=search");
+        menu22.setValue("pingifes.menu.item.agendamento.resultados");
+        menu22.setLink("/ResultadoProcessoSel.faces?event=search");
+        menu23.setValue("pingifes.menu.item.agente.gerenciador.processos");
+        menu23.setLink("/AgenteGerenciadorProcessos.faces?event=new");
+        List<MenuItem> children2 = new ArrayList<MenuItem>();
+        children2.add(menu21);
+        children2.add(menu22);
+        children2.add(menu23);
+        menu2.setChildren(children2);
+        MenuItem menu31 = new MenuItem();
+        MenuItem menu32 = new MenuItem();
+        MenuItem menu33 = new MenuItem();
+        menu31.setValue("pingifes.menu.item.manutencao.consulta.mapeamento");
+        menu31.setLink("/MapeamentoConsulta.faces?event=new");
+        menu32.setValue("pingifes.menu.item.manutencao.mapeamentoInvalido");
+        menu32.setLink("/Mapeamento.faces?event=new");
+        menu33.setValue("pingifes.menu.item.manutencao.consulta.banco");
+        menu33.setLink("/Query.faces?event=new");
+        List<MenuItem> children3 = new ArrayList<MenuItem>();
+        children3.add(menu31);
+        children3.add(menu32);
+        children3.add(menu33);
+        menu3.setChildren(children3);
+        MenuItem menu41 = new MenuItem();
+        MenuItem menu42 = new MenuItem();
+        menu41.setValue("pingifes.menu.item.sobre.sobre");
+        menu41.setLink("/About.faces?event=new");
+        menu42.setValue("pingifes.menu.item.sobre.notas.versao");
+        menu42.setLink("/ReleaseNotes.txt");
+        List<MenuItem> children4 = new ArrayList<MenuItem>();
+        children4.add(menu41);
+        children4.add(menu42);
+        menu4.setChildren(children4);
+    }
+}

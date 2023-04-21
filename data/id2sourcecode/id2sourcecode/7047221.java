@@ -1,0 +1,28 @@
+    public void downloadURL(String address, String localFileName) {
+        OutputStream out = null;
+        URLConnection conn = null;
+        InputStream in = null;
+        try {
+            URL url = new URL(address);
+            out = new BufferedOutputStream(new FileOutputStream(localFileName));
+            conn = url.openConnection();
+            in = conn.getInputStream();
+            byte[] buffer = new byte[1024];
+            int numRead;
+            while ((numRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, numRead);
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ioe) {
+            }
+        }
+    }

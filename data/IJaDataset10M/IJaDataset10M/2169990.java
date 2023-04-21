@@ -1,0 +1,62 @@
+package org.gjt.jclasslib.browser.config.window;
+
+/**
+    Browser path component for named class member (field or method).
+
+    @author <a href="mailto:jclasslib@ej-technologies.com">Ingo Kegel</a>
+    @version $Revision: 1.1 $ $Date: 2003/08/18 08:10:15 $
+*/
+public class ReferenceHolder implements PathComponent {
+
+    private String name;
+
+    private String type;
+
+    /**
+     * Constructor.
+     * @param name the name of the reference.
+     * @param type the type of the reference.
+     */
+    public ReferenceHolder(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
+
+    /**
+     * Constructor.
+     */
+    public ReferenceHolder() {
+    }
+
+    /**
+     * Get the name of the reference.
+     * @return the name.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Set the name of the reference.
+     * @param name the name.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Get the type of the reference.
+     * @return the type.
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * Set the type of the reference.
+     * @param type the type.
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
+}

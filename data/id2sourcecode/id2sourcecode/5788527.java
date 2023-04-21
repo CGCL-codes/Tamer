@@ -1,0 +1,3 @@
+    public void testAll() {
+        runTests(new TestDescriptor[] { new TestDescriptor(TEST1, "private method called by public method", 0, rule), new TestDescriptor(TEST2, "simple unused private method", 1, rule), new TestDescriptor(TEST3, "anonymous inner class calls private method", 0, rule), new TestDescriptor(TEST4, "two private methods with same name but different parameters", 1, rule), new TestDescriptor(TEST5, "calling private method after instantiating new copy of myself", 0, rule), new TestDescriptor(TEST6, "calling private method using 'this' modifier", 0, rule), new TestDescriptor(TEST7, "simple unused private static method", 1, rule), new TestDescriptor(TEST8, "readResolve/writeReplace/etc are OK", 0, rule) });
+    }

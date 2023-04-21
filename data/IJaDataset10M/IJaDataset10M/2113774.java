@@ -1,0 +1,111 @@
+package playground.dgrether.signalsystems.utils;
+
+import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedSet;
+import org.apache.log4j.Logger;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisLocation;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.matsim.api.core.v01.Id;
+import org.matsim.core.events.SignalGroupStateChangedEvent;
+import org.matsim.signalsystems.model.SignalGroupState;
+import playground.dgrether.analysis.charts.DgDefaultAxisBuilder;
+
+/**
+ * @author dgrether
+ * 
+ */
+public class DgSignalPlanChart {
+
+    private static final Logger log = Logger.getLogger(DgSignalPlanChart.class);
+
+    private DefaultCategoryDataset dataset;
+
+    private JFreeChart jChart;
+
+    private Map<Integer, Color> seriesColor = new HashMap<Integer, Color>();
+
+    private double tMin;
+
+    private double tMax;
+
+    public DgSignalPlanChart(double tMinSec, double tMaxSec) {
+        this.tMin = tMinSec;
+        this.tMax = tMaxSec;
+    }
+
+    public void addData(SortedSet<SignalGroupStateChangedEvent> systemEvents) {
+        this.dataset = new DefaultCategoryDataset();
+        Integer i = 0;
+        Map<Id, SignalGroupStateChangedEvent> id2lastStateChangeEventMap = new HashMap<Id, SignalGroupStateChangedEvent>();
+        for (SignalGroupStateChangedEvent e : systemEvents) {
+            if (e.getTime() < this.tMin) {
+                continue;
+            } else if (e.getTime() > this.tMax) {
+                break;
+            } else {
+                SignalGroupStateChangedEvent lastStateChange = id2lastStateChangeEventMap.get(e.getSignalGroupId());
+                if (lastStateChange == null) {
+                    this.dataset.addValue(e.getTime(), i, e.getSignalGroupId());
+                    log.info("added value: " + e.getTime() + " group id " + e.getSignalGroupId() + " row key: " + i);
+                    setSeriesColor(i, null);
+                } else {
+                    double duration = e.getTime() - lastStateChange.getTime();
+                    this.dataset.addValue(duration, i, lastStateChange.getSignalGroupId());
+                    log.info("added value: " + duration + " group id " + lastStateChange.getSignalGroupId() + " row key: " + i);
+                    this.setSeriesColor(i, lastStateChange.getNewState());
+                }
+                i++;
+                id2lastStateChangeEventMap.put(e.getSignalGroupId(), e);
+            }
+        }
+    }
+
+    private void setSeriesColor(Integer i, SignalGroupState state) {
+        if (state == null) {
+            seriesColor.put(i, new Color(200, 200, 200, 255));
+        } else if (state.equals(SignalGroupState.RED)) {
+            seriesColor.put(i, new Color(163, 0, 0, 255));
+        } else if (state.equals(SignalGroupState.GREEN)) {
+            seriesColor.put(i, new Color(0, 102, 0, 255));
+        } else if (state.equals(SignalGroupState.YELLOW)) {
+            seriesColor.put(i, new Color(255, 204, 0, 255));
+        } else if (state.equals(SignalGroupState.REDYELLOW)) {
+            seriesColor.put(i, new Color(255, 102, 0, 255));
+        }
+    }
+
+    public JFreeChart createSignalPlanChart(String title, String xAxisTitle, String yAxisTitle) {
+        JFreeChart chart = ChartFactory.createStackedBarChart(title, xAxisTitle, yAxisTitle, this.dataset, PlotOrientation.HORIZONTAL, false, false, false);
+        DgDefaultAxisBuilder axis = new DgDefaultAxisBuilder();
+        CategoryPlot plot = chart.getCategoryPlot();
+        plot.setBackgroundPaint(Color.white);
+        plot.setDomainGridlinePaint(Color.lightGray);
+        plot.setRangeGridlinePaint(Color.black);
+        plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
+        CategoryAxis xAxis = axis.createCategoryAxis(xAxisTitle);
+        plot.setDomainAxis(xAxis);
+        ValueAxis yAxis = axis.createValueAxis(yAxisTitle);
+        yAxis.setUpperBound(this.tMax);
+        yAxis.setLowerBound(this.tMin);
+        plot.setRangeAxis(yAxis);
+        final BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.findRangeBounds(dataset);
+        renderer.setShadowVisible(false);
+        renderer.setMaximumBarWidth(0.2);
+        for (Entry<Integer, Color> ee : seriesColor.entrySet()) {
+            renderer.setSeriesPaint(ee.getKey(), ee.getValue());
+        }
+        plot.setRenderer(renderer);
+        return chart;
+    }
+}

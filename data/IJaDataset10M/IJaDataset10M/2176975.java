@@ -1,0 +1,31 @@
+package org.sableccsupport.sccparser.node;
+
+import org.sableccsupport.sccparser.analysis.*;
+
+@SuppressWarnings("nls")
+public final class TEqual extends Token {
+
+    public TEqual() {
+        super.setText("=");
+    }
+
+    public TEqual(int line, int pos) {
+        super.setText("=");
+        setLine(line);
+        setPos(pos);
+    }
+
+    @Override
+    public Object clone() {
+        return new TEqual(getLine(), getPos());
+    }
+
+    public void apply(Switch sw) {
+        ((Analysis) sw).caseTEqual(this);
+    }
+
+    @Override
+    public void setText(@SuppressWarnings("unused") String text) {
+        throw new RuntimeException("Cannot change TEqual text.");
+    }
+}

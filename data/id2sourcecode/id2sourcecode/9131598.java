@@ -1,0 +1,20 @@
+    public ImageDiskCreateDM(String hostname, int port, String userid, String password, String target_identifier, String image_disk_number, String image_disk_device_type, String image_disk_allocation_type, String allocation_area_name_or_volser, int allocation_unit_size, int image_disk_size, String image_disk_mode, int image_disk_formatting, String image_disk_label, String read_password, String write_password, String multi_password) {
+        this();
+        setHostname(hostname);
+        setPort(port);
+        setUserid(userid);
+        setPassword(password);
+        setTarget_identifier(target_identifier);
+        set_imageDiskNumber(image_disk_number);
+        set_imageDiskDeviceType(image_disk_device_type);
+        set_imageDiskAllocationType(image_disk_allocation_type);
+        set_allocationAreaNameOrVolser(allocation_area_name_or_volser);
+        set_allocationUnitSize(allocation_unit_size);
+        set_imageDiskSize(image_disk_size);
+        set_imageDiskMode(image_disk_mode);
+        set_imageDiskFormatting(image_disk_formatting);
+        set_imageDiskLabel(image_disk_label);
+        set_readPassword(read_password);
+        set_writePassword(write_password);
+        set_multiPassword(multi_password);
+    }

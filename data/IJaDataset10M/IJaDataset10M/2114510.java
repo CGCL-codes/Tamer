@@ -1,0 +1,4 @@
+package waituntilincvs;
+
+class X {
+}

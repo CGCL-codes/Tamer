@@ -1,0 +1,28 @@
+package util.ranker;
+
+public interface TOTALS {
+
+    int KIDS_UNIGRAM = 138554;
+
+    int TEENS_UNIGRAM = 44067;
+
+    int KIDS_TEENS_MTEENS_UNIGRAM = 52249;
+
+    int TEENS_MTEENS_UNIGRAM = 1181783;
+
+    int ADULTS_UNIGRAM = 48240959;
+
+    int KIDS_TEENS_UNIGRAM = 167411;
+
+    int KIDS_BIGRAM = 52249;
+
+    int TEENS_BIGRAM = 21845;
+
+    int KIDS_TEENS_MTEENS_BIGRAM = 759460;
+
+    int TEENS_MTEENS_BIGRAM = 652057;
+
+    int ADULTS_BIGRAM = 14341327;
+
+    int KIDS_TEENS_BIGRAM = 127660;
+}

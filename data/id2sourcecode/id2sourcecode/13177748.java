@@ -1,0 +1,3 @@
+    IChannel getChannel() {
+        return channel;
+    }

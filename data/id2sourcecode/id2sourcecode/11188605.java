@@ -1,0 +1,16 @@
+    public Map readMap(String filename) {
+        try {
+            xmlPath = filename.substring(0, filename.lastIndexOf(File.separatorChar) + 1);
+            String xmlFile = makeUrl(filename);
+            URL url = new URL(xmlFile);
+            InputStream is = url.openStream();
+            if (filename.endsWith(".gz")) {
+                is = new GZIPInputStream(is);
+            }
+            Map unmarshalledMap = unmarshal(is);
+            unmarshalledMap.setFilename(filename);
+            return unmarshalledMap;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }

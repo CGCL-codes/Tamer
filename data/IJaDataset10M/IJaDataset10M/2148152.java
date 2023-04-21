@@ -1,0 +1,4 @@
+package DDSLWS;
+
+public interface ServiceContractTemplateTopicDataReaderView extends DDSLWS.ServiceContractTemplateTopicDataReaderViewOperations, DDS.DataReaderView {
+}

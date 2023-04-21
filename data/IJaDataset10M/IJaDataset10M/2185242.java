@@ -1,0 +1,92 @@
+package nu.xom.xinclude;
+
+/**
+ * <p>
+ * Indicates an error as defined by the XPointer specification.
+ * </p>
+ *
+ * @author Elliotte Rusty Harold
+ * @version 1.1b3
+ */
+class XPointerException extends Exception {
+
+    private static final long serialVersionUID = -533329510409448717L;
+
+    private Throwable cause = null;
+
+    /**
+     * <p>
+     * Constructs an <code>XPointerException</code> with the 
+     * specified detail message.
+     * </p>
+     *
+     * @param message a string indicating the specific problem
+     */
+    XPointerException(String message) {
+        super(message);
+    }
+
+    /**
+     * <p>
+     * Constructs an <code>XPointerException</code> with the 
+     * specified detail message and root cause.
+     * </p>
+     * 
+     * @param message a string indicating the specific problem
+     * @param cause the initial exception which caused this 
+     *     <code>XPointerException</code>
+     */
+    XPointerException(String message, Throwable cause) {
+        super(message);
+        initCause(cause);
+    }
+
+    /**
+     * <p>
+     * When an <code>IOException</code>,  
+     * <code>MalformedURLException</code>, or other generic  
+     * exception is thrown while processing an XML document
+     * for XPointer, it is customarily replaced
+     * by some form of <code>XPointerSyntaxException</code>.  
+     * This method allows you to retrieve the original exception.
+     * It returns null if no such exception caused this 
+     * <code>XPointerSyntaxException</code>.
+     *</p>
+     * 
+     * @return the underlying exception which 
+     *     caused this XPointerSyntaxException to be thrown
+     */
+    public Throwable getCause() {
+        return this.cause;
+    }
+
+    private boolean causeSet = false;
+
+    /**
+     * <p>
+     * When an <code>IOException</code>,  
+     * <code>MalformedURLException</code>, or other generic exception 
+     * is thrown while processing an XML document
+     * for XPointers, it is customarily replaced
+     * by some form of <code>XPointerException</code>.  
+     * This method allows you to store the original exception.
+     * </p>
+     *
+     * @param cause the root cause of this exception
+     * 
+     * @return this <code>XPointerException</code>
+     * 
+     * @throws IllegalArgumentException if the cause is this exception
+     *   (An exception cannot be its own cause.)
+     * @throws IllegalStateException if this method is called twice
+     */
+    public Throwable initCause(Throwable cause) {
+        if (causeSet) {
+            throw new IllegalStateException("Can't overwrite cause");
+        } else if (cause == this) {
+            throw new IllegalArgumentException("Self-causation not permitted");
+        } else this.cause = cause;
+        causeSet = true;
+        return this;
+    }
+}

@@ -1,0 +1,4 @@
+    public SnmpConfig(final Integer port, final Integer retry, final Integer timeout, final String readCommunity, final String writeCommunity, final String proxyHost, final String version, final Integer maxVarsPerPdu, final Integer maxRepetitions, final Integer maxRequestSize, final String securityName, final Integer securityLevel, final String authPassphrase, final String authProtocol, final String engineId, final String contextEngineId, final String contextName, final String privacyPassphrase, final String privacyProtocol, final String enterpriseId, final List<Definition> definitionList) {
+        super(port, retry, timeout, readCommunity, writeCommunity, proxyHost, version, maxVarsPerPdu, maxRepetitions, maxRequestSize, securityName, securityLevel, authPassphrase, authProtocol, engineId, contextEngineId, contextName, privacyPassphrase, privacyProtocol, enterpriseId);
+        setDefinition(definitionList);
+    }

@@ -1,0 +1,82 @@
+package it.xtypes.example.fj.tests;
+
+import java.io.File;
+import java.io.IOException;
+import it.xtypes.example.fj.fj.FjFactory;
+import it.xtypes.example.fj.fj.FjPackage;
+import it.xtypes.example.fj.fj.Program;
+import org.eclipse.emf.common.util.Diagnostic;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.util.Diagnostician;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+
+/**
+ * <!-- begin-user-doc -->
+ * A sample utility for the '<em><b>fj</b></em>' package.
+ * <!-- end-user-doc -->
+ * @generated
+ */
+public class FjExample {
+
+    /**
+	 * <!-- begin-user-doc -->
+	 * Load all the argument file paths or URIs as instances of the model.
+	 * <!-- end-user-doc -->
+	 * @param args the file paths or URIs.
+	 * @generated
+	 */
+    public static void main(String[] args) {
+        ResourceSet resourceSet = new ResourceSetImpl();
+        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
+        resourceSet.getPackageRegistry().put(FjPackage.eNS_URI, FjPackage.eINSTANCE);
+        if (args.length == 0) {
+            System.out.println("Enter a list of file paths or URIs that have content like this:");
+            try {
+                Resource resource = resourceSet.createResource(URI.createURI("http:///My.fj"));
+                Program root = FjFactory.eINSTANCE.createProgram();
+                resource.getContents().add(root);
+                resource.save(System.out, null);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        } else {
+            for (int i = 0; i < args.length; ++i) {
+                File file = new File(args[i]);
+                URI uri = file.isFile() ? URI.createFileURI(file.getAbsolutePath()) : URI.createURI(args[0]);
+                try {
+                    Resource resource = resourceSet.getResource(uri, true);
+                    System.out.println("Loaded " + uri);
+                    for (EObject eObject : resource.getContents()) {
+                        Diagnostic diagnostic = Diagnostician.INSTANCE.validate(eObject);
+                        if (diagnostic.getSeverity() != Diagnostic.OK) {
+                            printDiagnostic(diagnostic, "");
+                        }
+                    }
+                } catch (RuntimeException exception) {
+                    System.out.println("Problem loading " + uri);
+                    exception.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+	 * <!-- begin-user-doc -->
+	 * Prints diagnostics with indentation.
+	 * <!-- end-user-doc -->
+	 * @param diagnostic the diagnostic to print.
+	 * @param indent the indentation for printing.
+	 * @generated
+	 */
+    protected static void printDiagnostic(Diagnostic diagnostic, String indent) {
+        System.out.print(indent);
+        System.out.println(diagnostic.getMessage());
+        for (Diagnostic child : diagnostic.getChildren()) {
+            printDiagnostic(child, indent + "  ");
+        }
+    }
+}

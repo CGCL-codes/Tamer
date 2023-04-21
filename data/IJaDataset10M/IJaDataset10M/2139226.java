@@ -1,0 +1,4 @@
+package org.powerfolder.workflow.model.script;
+
+public interface StaticOrDynamicScriptTagConstraintOrTemplate extends StaticScriptTagConstraintOrTemplate, DynamicScriptTagConstraintOrTemplate {
+}

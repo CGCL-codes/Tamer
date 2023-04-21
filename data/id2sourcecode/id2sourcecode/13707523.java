@@ -1,0 +1,3 @@
+    public static boolean matches(AudioFormat format1, AudioFormat format2) {
+        return Encodings.equals(format1.getEncoding(), format2.getEncoding()) && (format2.getSampleSizeInBits() <= 8 || format1.getSampleSizeInBits() == AudioSystem.NOT_SPECIFIED || format2.getSampleSizeInBits() == AudioSystem.NOT_SPECIFIED || format1.isBigEndian() == format2.isBigEndian()) && doMatch(format1.getChannels(), format2.getChannels()) && doMatch(format1.getSampleSizeInBits(), format2.getSampleSizeInBits()) && doMatch(format1.getFrameSize(), format2.getFrameSize()) && doMatch(format1.getSampleRate(), format2.getSampleRate()) && doMatch(format1.getFrameRate(), format2.getFrameRate());
+    }

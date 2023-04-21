@@ -1,0 +1,24 @@
+package org.columba.api.gui.frame;
+
+import org.columba.api.plugin.PluginLoadingFailedException;
+
+public interface IFrameManager {
+
+    /**
+	 * Get active/focused frame mediator.
+	 * 
+	 * @return active frame mediator
+	 */
+    public abstract IContainer getActiveFrameMediator();
+
+    /**
+	 * Opens a view of a given type, i.e. with a specific id.
+	 * 
+	 * @param id
+	 *            id specifying view type, e.g. "ThreePaneMail" or "Addressbook"
+	 * @return Frame controller for the given view type
+	 */
+    public abstract IFrameMediator openView(String id) throws PluginLoadingFailedException;
+
+    public abstract IFrameMediator switchView(IContainer c, String id) throws PluginLoadingFailedException;
+}

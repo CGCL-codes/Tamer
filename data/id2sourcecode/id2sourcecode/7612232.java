@@ -1,0 +1,22 @@
+    public Configuration(final Integer port, final Integer retry, final Integer timeout, final String readCommunity, final String writeCommunity, final String proxyHost, final String version, final Integer maxVarsPerPdu, final Integer maxRepetitions, final Integer maxRequestSize, final String securityName, final Integer securityLevel, final String authPassphrase, final String authProtocol, final String engineId, final String contextEngineId, final String contextName, final String privacyPassphrase, final String privacyProtocol, final String enterpriseId) {
+        setPort(port);
+        setRetry(retry);
+        setTimeout(timeout);
+        setReadCommunity(readCommunity);
+        setWriteCommunity(writeCommunity);
+        setProxyHost(proxyHost);
+        setVersion(version);
+        setMaxVarsPerPdu(maxVarsPerPdu);
+        setMaxRepetitions(maxRepetitions);
+        setMaxRequestSize(maxRequestSize);
+        setSecurityName(securityName);
+        setSecurityLevel(securityLevel);
+        setAuthPassphrase(authPassphrase);
+        setAuthProtocol(authProtocol);
+        setEngineId(contextEngineId);
+        setContextEngineId(contextEngineId);
+        setContextName(contextName);
+        setPrivacyPassphrase(privacyPassphrase);
+        setPrivacyProtocol(privacyProtocol);
+        setEnterpriseId(enterpriseId);
+    }

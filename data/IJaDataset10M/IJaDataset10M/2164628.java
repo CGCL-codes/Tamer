@@ -1,0 +1,123 @@
+package net.sf.etl.parsers.grammar.lite;
+
+/**
+ * The class BlankSyntaxStatement
+ */
+public class BlankSyntaxStatement extends SyntaxStatement {
+
+    /** class identifier */
+    public static final int CLASS_ID = 57;
+
+    @Override
+    public int eClassId() {
+        return CLASS_ID;
+    }
+
+    /** start properties in this class */
+    public static final int PROPERTIES_START = SyntaxStatement.PROPERTIES_END;
+
+    @Override
+    public Class<?> eFeatureType(int featureId) {
+        switch(featureId) {
+            case START_LINE_ID:
+                return java.lang.Integer.class;
+            case START_COLUMN_ID:
+                return java.lang.Integer.class;
+            case START_OFFSET_ID:
+                return java.lang.Long.class;
+            case END_LINE_ID:
+                return java.lang.Integer.class;
+            case END_COLUMN_ID:
+                return java.lang.Integer.class;
+            case END_OFFSET_ID:
+                return java.lang.Long.class;
+            case DOCUMENTATION_ID:
+                return DocumentationLine.class;
+            default:
+                throw new IllegalArgumentException("Unknown feature id" + featureId);
+        }
+    }
+
+    @Override
+    public Object eGet(int featureId) {
+        switch(featureId) {
+            case START_LINE_ID:
+                return getStartLine();
+            case START_COLUMN_ID:
+                return getStartColumn();
+            case START_OFFSET_ID:
+                return getStartOffset();
+            case END_LINE_ID:
+                return getEndLine();
+            case END_COLUMN_ID:
+                return getEndColumn();
+            case END_OFFSET_ID:
+                return getEndOffset();
+            case DOCUMENTATION_ID:
+                return getDocumentation();
+            default:
+                throw new IllegalArgumentException("Unknown feature id" + featureId);
+        }
+    }
+
+    @Override
+    public void eSet(int featureId, Object value) {
+        switch(featureId) {
+            case START_LINE_ID:
+                setStartLine((java.lang.Integer) value);
+                return;
+            case START_COLUMN_ID:
+                setStartColumn((java.lang.Integer) value);
+                return;
+            case START_OFFSET_ID:
+                setStartOffset((java.lang.Long) value);
+                return;
+            case END_LINE_ID:
+                setEndLine((java.lang.Integer) value);
+                return;
+            case END_COLUMN_ID:
+                setEndColumn((java.lang.Integer) value);
+                return;
+            case END_OFFSET_ID:
+                setEndOffset((java.lang.Long) value);
+                return;
+            case DOCUMENTATION_ID:
+                throw new IllegalArgumentException("The feature documentation does not support set operation");
+            default:
+                throw new IllegalArgumentException("Unknown feature id" + featureId);
+        }
+    }
+
+    /** map from feature name to feature id */
+    static final java.util.HashMap<String, Integer> FEATURE_NAME_TO_ID = createFeatureNameToIdMap();
+
+    /** @return the created map from feature name to feature id for this class */
+    static java.util.HashMap<String, Integer> createFeatureNameToIdMap() {
+        java.util.HashMap<String, Integer> rc = SyntaxStatement.createFeatureNameToIdMap();
+        return rc;
+    }
+
+    /** @return the cached map from feature name to feature id for this class */
+    @Override
+    protected java.util.HashMap<String, Integer> eNameToIdMap() {
+        return FEATURE_NAME_TO_ID;
+    }
+
+    /** array that represent values for eIsMany() */
+    static final boolean IS_MANY_ARRAY[] = createIsManyArray();
+
+    /** @return array that represent values for eIsMany() */
+    static boolean[] createIsManyArray() {
+        boolean rc[] = new boolean[PROPERTIES_END];
+        rc[DOCUMENTATION_ID] = true;
+        return rc;
+    }
+
+    @Override
+    public boolean eIsMany(int featureId) {
+        return IS_MANY_ARRAY[featureId];
+    }
+
+    /** end value for properites, subclasses should start from it */
+    public static final int PROPERTIES_END = PROPERTIES_START + 0;
+}

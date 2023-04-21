@@ -1,0 +1,232 @@
+package org.columba.mail.gui.table.model;
+
+import java.text.Collator;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
+import org.columba.core.xml.XmlElement;
+import org.columba.mail.config.FolderItem;
+import org.columba.mail.gui.table.SortingStateObservable;
+import org.columba.mail.gui.table.TableView;
+import org.columba.mail.message.ColumbaHeader;
+import org.columba.ristretto.message.Flags;
+
+/**
+ * 
+ * 
+ * Extends <class>BasicTableModelSorter </class> with Columba specific stuff.
+ * <p>
+ * Sorting order and column are initially loaded/saved from an xml configuration
+ * file.
+ * <p>
+ * It especially implements <interface>TableModelModifier </interface>.
+ * 
+ * @author fdietz
+ */
+public class TableModelSorter implements ModelVisitor {
+
+    protected boolean ascending = true;
+
+    protected String sort = new String("Date");
+
+    protected Collator collator;
+
+    protected SortingStateObservable sortingStateObservable;
+
+    public TableModelSorter() {
+        setSortingColumn("Date");
+        setSortingOrder(true);
+        sortingStateObservable = new SortingStateObservable();
+        sortingStateObservable.setSortingState(getSortingColumn(), getSortingOrder());
+        collator = Collator.getInstance();
+    }
+
+    /**
+	 * @return
+	 */
+    public SortingStateObservable getSortingStateObservable() {
+        return sortingStateObservable;
+    }
+
+    /**
+	 * 
+	 * This method is used by <class>SortMessagesMenu </class> to generate the
+	 * available menuitem entries
+	 * 
+	 * @return array of visible columns
+	 */
+    public Object[] getColumns() {
+        XmlElement tableElement = FolderItem.getGlobalOptions();
+        XmlElement columns = tableElement.getElement("columns");
+        Vector v = new Vector();
+        for (int i = 0; i < columns.count(); i++) {
+            XmlElement column = columns.getElement(i);
+            String name = column.getAttribute("name");
+            v.add(name);
+        }
+        Object[] result = new String[v.size()];
+        result = v.toArray();
+        return result;
+    }
+
+    public void loadConfig(TableView view) {
+    }
+
+    /**
+	 * ***************************** implements TableModelModifier
+	 * ******************
+	 */
+    public String getSortingColumn() {
+        return sort;
+    }
+
+    public boolean getSortingOrder() {
+        return ascending;
+    }
+
+    public void setSortingColumn(String str) {
+        sort = str;
+    }
+
+    public void setSortingOrder(boolean b) {
+        ascending = b;
+    }
+
+    /**
+	 * 
+	 * sort the table
+	 * 
+	 * use selected column and sorting order
+	 *  
+	 */
+    public void sort(HeaderTableModel tableModel) {
+        MessageNode rootNode = tableModel.getRootNode();
+        List v = rootNode.getVector();
+        if (v == null) return;
+        Collections.sort(v, new MessageHeaderComparator(getSortingColumn(), tableModel.getColumnNumber(getSortingColumn()), getSortingOrder()));
+    }
+
+    class MessageHeaderComparator implements Comparator {
+
+        protected int column;
+
+        protected boolean ascending;
+
+        protected String columnName;
+
+        public MessageHeaderComparator(String columnName, int sortCol, boolean sortAsc) {
+            column = sortCol;
+            ascending = sortAsc;
+            this.columnName = columnName;
+        }
+
+        public int compare(Object o1, Object o2) {
+            MessageNode node1 = (MessageNode) o1;
+            MessageNode node2 = (MessageNode) o2;
+            ColumbaHeader header1 = (ColumbaHeader) node1.getUserObject();
+            ColumbaHeader header2 = (ColumbaHeader) node2.getUserObject();
+            if ((header1 == null) || (header2 == null)) {
+                return 0;
+            }
+            int result = 0;
+            if (columnName.equals("Status")) {
+                Flags flags1 = header1.getFlags();
+                Flags flags2 = header2.getFlags();
+                if ((flags1 == null) || (flags2 == null)) {
+                    result = 0;
+                } else if ((flags1.getSeen()) && (!flags2.getSeen())) {
+                    result = -1;
+                } else if ((!flags1.getSeen()) && (flags2.getSeen())) {
+                    result = 1;
+                } else {
+                    result = 0;
+                }
+            } else if (columnName.equals("Flagged")) {
+                Flags flags1 = header1.getFlags();
+                Flags flags2 = header2.getFlags();
+                boolean f1 = flags1.getFlagged();
+                boolean f2 = flags2.getFlagged();
+                if (f1 == f2) {
+                    result = 0;
+                } else if (f1) {
+                    result = 1;
+                } else {
+                    result = -1;
+                }
+            } else if (columnName.equals("Attachment")) {
+                boolean f1 = ((Boolean) header1.get("columba.attachment")).booleanValue();
+                boolean f2 = ((Boolean) header2.get("columba.attachment")).booleanValue();
+                if (f1 == f2) {
+                    result = 0;
+                } else if (f1) {
+                    result = 1;
+                } else {
+                    result = -1;
+                }
+            } else if ((columnName.equals("Date")) || (columnName.equals("MultiLine"))) {
+                Date d1 = (Date) header1.get("columba.date");
+                Date d2 = (Date) header2.get("columba.date");
+                if ((d1 == null) || (d2 == null)) {
+                    result = 0;
+                } else {
+                    result = d1.compareTo(d2);
+                }
+            } else if (columnName.equals("Size")) {
+                int i1 = ((Integer) header1.get("columba.size")).intValue();
+                int i2 = ((Integer) header2.get("columba.size")).intValue();
+                if (i1 == i2) {
+                    result = 0;
+                } else if (i1 > i2) {
+                    result = 1;
+                } else {
+                    result = -1;
+                }
+            } else if (columnName.equals("Spam")) {
+                boolean f1 = ((Boolean) header1.get("columba.spam")).booleanValue();
+                boolean f2 = ((Boolean) header2.get("columba.spam")).booleanValue();
+                if (f1 == f2) {
+                    result = 0;
+                } else if (f1) {
+                    result = 1;
+                } else {
+                    result = -1;
+                }
+            } else {
+                Object item1 = header1.get(columnName);
+                Object item2 = header2.get(columnName);
+                if ((item1 != null) && (item2 == null)) {
+                    result = 1;
+                } else if ((item1 == null) && (item2 != null)) {
+                    result = -1;
+                } else if ((item1 == null) && (item2 == null)) {
+                    result = 0;
+                } else if (item1 instanceof String) {
+                    result = collator.compare((String) item1, (String) item2);
+                } else if (item1 instanceof Boolean) {
+                    result = collator.compare((Boolean) item1, (Boolean) item2);
+                }
+            }
+            if (!ascending) {
+                result = -result;
+            }
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            if (obj instanceof MessageHeaderComparator) {
+                MessageHeaderComparator compObj = (MessageHeaderComparator) obj;
+                return (compObj.column == column) && (compObj.ascending == ascending);
+            }
+            return false;
+        }
+    }
+
+    /**
+	 * @see org.columba.mail.gui.table.model.ModelVisitor#visit(org.columba.mail.gui.table.model.TreeTableModelInterface)
+	 */
+    public void visit(HeaderTableModel realModel) {
+        sort(realModel);
+    }
+}

@@ -1,0 +1,40 @@
+    public void activateEditor(IWorkbenchPage aPage, IStructuredSelection aSelection) {
+        if (aSelection == null || aSelection.isEmpty()) {
+            return;
+        }
+        if (false == aSelection.getFirstElement() instanceof de.nordakademie.lejos.stateMachine.diagram.navigator.StateMachineAbstractNavigatorItem) {
+            return;
+        }
+        de.nordakademie.lejos.stateMachine.diagram.navigator.StateMachineAbstractNavigatorItem abstractNavigatorItem = (de.nordakademie.lejos.stateMachine.diagram.navigator.StateMachineAbstractNavigatorItem) aSelection.getFirstElement();
+        View navigatorView = null;
+        if (abstractNavigatorItem instanceof de.nordakademie.lejos.stateMachine.diagram.navigator.StateMachineNavigatorItem) {
+            navigatorView = ((de.nordakademie.lejos.stateMachine.diagram.navigator.StateMachineNavigatorItem) abstractNavigatorItem).getView();
+        } else if (abstractNavigatorItem instanceof de.nordakademie.lejos.stateMachine.diagram.navigator.StateMachineNavigatorGroup) {
+            de.nordakademie.lejos.stateMachine.diagram.navigator.StateMachineNavigatorGroup navigatorGroup = (de.nordakademie.lejos.stateMachine.diagram.navigator.StateMachineNavigatorGroup) abstractNavigatorItem;
+            if (navigatorGroup.getParent() instanceof de.nordakademie.lejos.stateMachine.diagram.navigator.StateMachineNavigatorItem) {
+                navigatorView = ((de.nordakademie.lejos.stateMachine.diagram.navigator.StateMachineNavigatorItem) navigatorGroup.getParent()).getView();
+            }
+        }
+        if (navigatorView == null) {
+            return;
+        }
+        IEditorInput editorInput = getEditorInput(navigatorView.getDiagram());
+        IEditorPart editor = aPage.findEditor(editorInput);
+        if (editor == null) {
+            return;
+        }
+        aPage.bringToTop(editor);
+        if (editor instanceof DiagramEditor) {
+            DiagramEditor diagramEditor = (DiagramEditor) editor;
+            ResourceSet diagramEditorResourceSet = diagramEditor.getEditingDomain().getResourceSet();
+            EObject selectedView = diagramEditorResourceSet.getEObject(EcoreUtil.getURI(navigatorView), true);
+            if (selectedView == null) {
+                return;
+            }
+            GraphicalViewer graphicalViewer = (GraphicalViewer) diagramEditor.getAdapter(GraphicalViewer.class);
+            EditPart selectedEditPart = (EditPart) graphicalViewer.getEditPartRegistry().get(selectedView);
+            if (selectedEditPart != null) {
+                graphicalViewer.select(selectedEditPart);
+            }
+        }
+    }

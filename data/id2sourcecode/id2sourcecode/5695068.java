@@ -1,0 +1,12 @@
+    public boolean remPart(int i) {
+        try {
+            for (int j = i; j < parts; j++) {
+                part[j] = part[j + 1];
+            }
+            parts--;
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }

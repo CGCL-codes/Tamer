@@ -1,0 +1,4 @@
+    @DataProvider(name = "actionAttrDesignatorException")
+    public Object[][] actionAttrDesignatorException() {
+        return new Object[][] { new Object[] { initializeRequest(initializeAction("action-id", new StringDataTypeAttribute(), "hsr", "read", false)), initializeDesignator("action-id", new RFC822NameDataTypeAttribute(), "hsr", true) }, new Object[] { initializeRequest(initializeAction("action-id", new StringDataTypeAttribute(), "zhw", "read", false)), initializeDesignator("action-id", new StringDataTypeAttribute(), "hsr", true) }, new Object[] { initializeRequest(initializeAction("act", new StringDataTypeAttribute(), "hsr", "read", false)), initializeDesignator("action-id", new RFC822NameDataTypeAttribute(), "hsr", true) }, new Object[] { initializeRequest(initializeAction("action-id", new StringDataTypeAttribute(), "hsr", "write", false)), initializeDesignator("action-id", new StringDataTypeAttribute(), "fhsg", true) } };
+    }

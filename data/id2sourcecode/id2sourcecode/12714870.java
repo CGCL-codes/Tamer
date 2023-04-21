@@ -1,0 +1,3 @@
+    protected void handleElementContentReplaced() {
+        initializeGraphicalViewerContents();
+    }

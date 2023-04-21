@@ -1,0 +1,43 @@
+package org.openXpertya.print.pdf.bc.asn1;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+
+public class DERSequence extends ASN1Sequence {
+
+    /**
+     * create an empty sequence
+     */
+    public DERSequence() {
+    }
+
+    /**
+     * create a sequence containing one object
+     */
+    public DERSequence(DEREncodable obj) {
+        this.addObject(obj);
+    }
+
+    /**
+     * create a sequence containing a vector of objects.
+     */
+    public DERSequence(DEREncodableVector v) {
+        for (int i = 0; i != v.size(); i++) {
+            this.addObject(v.get(i));
+        }
+    }
+
+    void encode(DEROutputStream out) throws IOException {
+        ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        DEROutputStream dOut = new DEROutputStream(bOut);
+        Enumeration e = this.getObjects();
+        while (e.hasMoreElements()) {
+            Object obj = e.nextElement();
+            dOut.writeObject(obj);
+        }
+        dOut.close();
+        byte[] bytes = bOut.toByteArray();
+        out.writeEncoded(SEQUENCE | CONSTRUCTED, bytes);
+    }
+}

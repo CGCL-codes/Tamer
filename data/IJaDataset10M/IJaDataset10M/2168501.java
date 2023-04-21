@@ -1,0 +1,101 @@
+package org.ofbiz.base.util;
+
+import javolution.util.FastList;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.Certificate;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.util.List;
+import java.util.Iterator;
+import java.util.Enumeration;
+
+/**
+ * MultiTrustManager
+ */
+public class MultiTrustManager implements X509TrustManager {
+
+    public static final String module = MultiTrustManager.class.getName();
+
+    protected List<KeyStore> keystores;
+
+    public MultiTrustManager(KeyStore ks) {
+        this();
+        keystores.add(ks);
+    }
+
+    public MultiTrustManager() {
+        keystores = FastList.newInstance();
+    }
+
+    public void add(KeyStore ks) {
+        if (ks != null) {
+            keystores.add(ks);
+        }
+    }
+
+    public int getNumberOfKeyStores() {
+        return keystores.size();
+    }
+
+    public void checkClientTrusted(X509Certificate[] certs, String alg) throws CertificateException {
+        if (!isTrusted(certs)) {
+            throw new CertificateException("No trusted certificate found");
+        }
+    }
+
+    public void checkServerTrusted(X509Certificate[] certs, String alg) throws CertificateException {
+        if (!isTrusted(certs)) {
+            throw new CertificateException("No trusted certificate found");
+        }
+    }
+
+    public X509Certificate[] getAcceptedIssuers() {
+        List<X509Certificate> issuers = FastList.newInstance();
+        for (KeyStore store : keystores) {
+            try {
+                Enumeration<String> e = store.aliases();
+                while (e.hasMoreElements()) {
+                    String alias = e.nextElement();
+                    Certificate[] chain = store.getCertificateChain(alias);
+                    if (chain != null) {
+                        for (Certificate cert : chain) {
+                            if (cert instanceof X509Certificate) {
+                                if (Debug.verboseOn()) Debug.log("Read certificate (chain) : " + ((X509Certificate) cert).getSubjectX500Principal().getName(), module);
+                                issuers.add((X509Certificate) cert);
+                            }
+                        }
+                    } else {
+                        Certificate cert = store.getCertificate(alias);
+                        if (cert != null && cert instanceof X509Certificate) {
+                            if (Debug.verboseOn()) Debug.log("Read certificate : " + ((X509Certificate) cert).getSubjectX500Principal().getName(), module);
+                            issuers.add((X509Certificate) cert);
+                        }
+                    }
+                }
+            } catch (KeyStoreException e) {
+                Debug.logError(e, module);
+            }
+        }
+        return issuers.toArray(new X509Certificate[issuers.size()]);
+    }
+
+    protected boolean isTrusted(X509Certificate[] cert) {
+        if (cert != null) {
+            X509Certificate[] issuers = this.getAcceptedIssuers();
+            if (issuers != null) {
+                for (X509Certificate issuer : issuers) {
+                    for (X509Certificate c : cert) {
+                        if (Debug.verboseOn()) Debug.log("--- Checking cert: " + issuer.getSubjectX500Principal() + " vs " + c.getSubjectX500Principal(), module);
+                        if (issuer.equals(c)) {
+                            if (Debug.verboseOn()) Debug.log("--- Found trusted cert: " + issuer.getSerialNumber().toString(16) + " : " + issuer.getSubjectX500Principal(), module);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+}

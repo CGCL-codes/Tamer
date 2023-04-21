@@ -1,0 +1,37 @@
+    public static void main(String[] args) {
+        System.out.println("Chapter 15: example Field Actions");
+        System.out.println("-> Creates a PDF file with fields that have additional actions;");
+        System.out.println("-> jars needed: iText.jar");
+        System.out.println("-> files generated in /results subdirectory:");
+        System.out.println("   field_actions.pdf");
+        Document document = new Document();
+        try {
+            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("results/in_action/chapter15/field_actions.pdf"));
+            document.open();
+            TextField textfield = new TextField(writer, new Rectangle(140, 790, 200, 810), "uppercase");
+            textfield.setMaxCharacterLength(4);
+            textfield.setOptions(TextField.COMB);
+            textfield.setBorderWidth(1);
+            textfield.setBorderStyle(PdfBorderDictionary.STYLE_INSET);
+            PdfFormField field = textfield.getTextField();
+            field.setAdditionalActions(new PdfName("Fo"), PdfAction.javaScript("app.alert('COMB got the focus');", writer));
+            field.setAdditionalActions(new PdfName("Bl"), PdfAction.javaScript("app.alert('COMB lost the focus');", writer));
+            field.setAdditionalActions(new PdfName("K"), PdfAction.javaScript("event.change = event.change.toUpperCase();", writer));
+            writer.addAnnotation(field);
+            TextField date = new TextField(writer, new Rectangle(140, 760, 250, 780), "date");
+            date.setBackgroundColor(Color.YELLOW);
+            date.setBorderColor(Color.BLUE);
+            date.setBorderWidth(2);
+            date.setFontSize(10);
+            date.setBorderStyle(PdfBorderDictionary.STYLE_INSET);
+            date.setOptions(TextField.EDIT);
+            date.setChoices(new String[] { "Christmas", "New Year" });
+            date.setChoiceExports(new String[] { "12-25-2006", "01-01-2007" });
+            field = date.getComboField();
+            field.setAdditionalActions(PdfName.K, PdfAction.javaScript("AFDate_KeystrokeEx( 'dd-mm-yyyy' )", writer));
+            writer.addAnnotation(field);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        document.close();
+    }

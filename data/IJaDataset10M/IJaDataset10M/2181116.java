@@ -1,0 +1,123 @@
+package com.aionemu.gameserver.ai.desires.impl;
+
+import com.aionemu.gameserver.ai.AI;
+import com.aionemu.gameserver.ai.desires.AbstractDesire;
+import com.aionemu.gameserver.ai.events.Event;
+import com.aionemu.gameserver.model.gameobjects.Creature;
+import com.aionemu.gameserver.model.gameobjects.Npc;
+import com.aionemu.gameserver.model.gameobjects.state.CreatureState;
+import com.aionemu.gameserver.model.gameobjects.stats.StatEnum;
+import com.aionemu.gameserver.utils.MathUtil;
+
+/**
+ * This class indicates that character wants to attack somebody
+ * 
+ * @author SoulKeeper
+ * @author Pinguin
+ * @author ATracer
+ */
+public final class AttackDesire extends AbstractDesire {
+
+    private int attackNotPossibleCounter;
+
+    private int attackCounter = 1;
+
+    /**
+	 * Target of this desire
+	 */
+    protected Creature target;
+
+    protected Npc owner;
+
+    /**
+	 * Creates new attack desire, target can't be changed
+	 * 
+	 * @param npc
+	 *            The Npc that's attacking
+	 * @param target
+	 * 			  whom to attack
+	 * @param desirePower
+	 *            initial attack power
+	 */
+    public AttackDesire(Npc npc, Creature target, int desirePower) {
+        super(desirePower);
+        this.target = target;
+        this.owner = npc;
+    }
+
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public boolean handleDesire(AI<?> ai) {
+        if (target == null || target.getLifeStats().isAlreadyDead()) {
+            owner.getAggroList().stopHating(target);
+            owner.getAi().handleEvent(Event.TIRED_ATTACKING_TARGET);
+            return false;
+        }
+        double distance = MathUtil.getDistance(owner.getX(), owner.getY(), owner.getZ(), target.getX(), target.getY(), target.getZ());
+        if (distance > 50) {
+            owner.getAggroList().stopHating(target);
+            owner.getAi().handleEvent(Event.TIRED_ATTACKING_TARGET);
+            return false;
+        }
+        attackCounter++;
+        if (attackCounter % 2 == 0) {
+            if (!owner.getAggroList().isMostHated(target)) {
+                owner.getAi().handleEvent(Event.TIRED_ATTACKING_TARGET);
+                return false;
+            }
+        }
+        int attackRange = owner.getGameStats().getCurrentStat(StatEnum.ATTACK_RANGE);
+        if (distance * 1000 <= attackRange) {
+            owner.getController().attackTarget(target);
+            attackNotPossibleCounter = 0;
+        } else {
+            attackNotPossibleCounter++;
+        }
+        if (attackNotPossibleCounter > 10) {
+            owner.getAggroList().stopHating(target);
+            owner.getAi().handleEvent(Event.TIRED_ATTACKING_TARGET);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AttackDesire)) return false;
+        AttackDesire that = (AttackDesire) o;
+        return target.equals(that.target);
+    }
+
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public int hashCode() {
+        return target.hashCode();
+    }
+
+    /**
+	 * Returns target of this desire
+	 * 
+	 * @return target of this desire
+	 */
+    public Creature getTarget() {
+        return target;
+    }
+
+    @Override
+    public int getExecutionInterval() {
+        return 2;
+    }
+
+    @Override
+    public void onClear() {
+        owner.unsetState(CreatureState.WEAPON_EQUIPPED);
+    }
+}

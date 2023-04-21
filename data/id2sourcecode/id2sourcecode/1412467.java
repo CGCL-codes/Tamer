@@ -1,0 +1,7 @@
+    public static final void copyInputStream(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[BUFFER];
+        int len;
+        while ((len = in.read(buffer)) >= 0) out.write(buffer, 0, len);
+        in.close();
+        out.close();
+    }

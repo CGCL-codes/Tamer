@@ -1,0 +1,4 @@
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("port", getPort()).append("retry", getRetry()).append("timeout", getTimeout()).append("read-community", getReadCommunity()).append("write-community", getWriteCommunity()).append("proxy-host", getProxyHost()).append("version", getVersion()).append("max-vars-per-pdu", getMaxVarsPerPdu()).append("max-repetitions", getMaxRepetitions()).append("max-request-size", getMaxRequestSize()).append("security-name", getSecurityName()).append("security-level", getSecurityLevel()).append("auth-passphrase", getAuthPassphrase()).append("auth-protocol", getAuthProtocol()).append("engine-id", getEngineId()).append("context-engine-id", getContextEngineId()).append("context-name", getContextName()).append("privacy-passphrase", getPrivacyPassphrase()).append("privacy-protocol", getPrivacyProtocol()).append("enterprise-id", getEnterpriseId()).toString();
+    }

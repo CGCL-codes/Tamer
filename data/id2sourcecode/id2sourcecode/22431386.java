@@ -1,0 +1,3 @@
+    Channel getChannel() {
+        return channel;
+    }

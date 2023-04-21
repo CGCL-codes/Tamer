@@ -1,0 +1,1181 @@
+package CMbE;
+
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jdesktop.application.Action;
+import org.jdesktop.application.ResourceMap;
+import org.jdesktop.application.SingleFrameApplication;
+import org.jdesktop.application.FrameView;
+import org.jdesktop.application.TaskMonitor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import javax.swing.Timer;
+import javax.swing.Icon;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.ValueMarker;
+import org.jfree.data.category.DefaultCategoryDataset;
+
+/**
+ * The application's main frame.
+ */
+public class GUI extends FrameView {
+
+    public GUI(SingleFrameApplication app) {
+        super(app);
+        initComponents();
+        Calendar ca = new GregorianCalendar();
+        String da = ca.get(Calendar.DAY_OF_MONTH) + "." + (ca.get(Calendar.MONTH) + 1) + "." + ca.get(Calendar.YEAR);
+        jText_datum.setText(da);
+        load();
+        start = true;
+        jTable_betankungen.getColumnModel().getColumn(2).setMinWidth(160);
+        ResourceMap resourceMap = getResourceMap();
+        int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
+        messageTimer = new Timer(messageTimeout, new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                statusMessageLabel.setText("");
+            }
+        });
+        messageTimer.setRepeats(false);
+        int busyAnimationRate = resourceMap.getInteger("StatusBar.busyAnimationRate");
+        for (int i = 0; i < busyIcons.length; i++) {
+            busyIcons[i] = resourceMap.getIcon("StatusBar.busyIcons[" + i + "]");
+        }
+        busyIconTimer = new Timer(busyAnimationRate, new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                busyIconIndex = (busyIconIndex + 1) % busyIcons.length;
+                statusAnimationLabel.setIcon(busyIcons[busyIconIndex]);
+            }
+        });
+        idleIcon = resourceMap.getIcon("StatusBar.idleIcon");
+        statusAnimationLabel.setIcon(idleIcon);
+        progressBar.setVisible(false);
+        TaskMonitor taskMonitor = new TaskMonitor(getApplication().getContext());
+        taskMonitor.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                String propertyName = evt.getPropertyName();
+                if ("started".equals(propertyName)) {
+                    if (!busyIconTimer.isRunning()) {
+                        statusAnimationLabel.setIcon(busyIcons[0]);
+                        busyIconIndex = 0;
+                        busyIconTimer.start();
+                    }
+                    progressBar.setVisible(true);
+                    progressBar.setIndeterminate(true);
+                } else if ("done".equals(propertyName)) {
+                    busyIconTimer.stop();
+                    statusAnimationLabel.setIcon(idleIcon);
+                    progressBar.setVisible(false);
+                    progressBar.setValue(0);
+                } else if ("message".equals(propertyName)) {
+                    String text = (String) (evt.getNewValue());
+                    statusMessageLabel.setText((text == null) ? "" : text);
+                    messageTimer.restart();
+                } else if ("progress".equals(propertyName)) {
+                    int value = (Integer) (evt.getNewValue());
+                    progressBar.setVisible(true);
+                    progressBar.setIndeterminate(false);
+                    progressBar.setValue(value);
+                }
+            }
+        });
+    }
+
+    @Action
+    public void showAboutBox() {
+        if (aboutBox == null) {
+            JFrame mainFrame = CMbE_App.getApplication().getMainFrame();
+            aboutBox = new AboutBox(mainFrame);
+            aboutBox.setLocationRelativeTo(mainFrame);
+        }
+        CMbE_App.getApplication().show(aboutBox);
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    private void initComponents() {
+        mainPanel = new javax.swing.JPanel();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable_betankungen = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
+        jText_datum = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jText_kilometer = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jText_gas = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jText_benzin = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jLabel15 = new javax.swing.JLabel();
+        jText_gas_p = new javax.swing.JTextField();
+        jLabel17 = new javax.swing.JLabel();
+        jText_benzin_p = new javax.swing.JTextField();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel_km = new javax.swing.JLabel();
+        jLabel_b = new javax.swing.JLabel();
+        jLabel_g = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel_kmJ = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel_bJ = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel_gJ = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
+        jLabel_gp = new javax.swing.JLabel();
+        jLabel_bp = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel24 = new javax.swing.JLabel();
+        jLabel_gpJ = new javax.swing.JLabel();
+        jLabel_bpJ = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        jLabel_bpL = new javax.swing.JLabel();
+        jLabel26 = new javax.swing.JLabel();
+        jLabel_gpL = new javax.swing.JLabel();
+        jLabel27 = new javax.swing.JLabel();
+        jText_mehr = new javax.swing.JTextField();
+        jLabel28 = new javax.swing.JLabel();
+        jLabel_gespart = new javax.swing.JLabel();
+        menuBar = new javax.swing.JMenuBar();
+        javax.swing.JMenu fileMenu = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        javax.swing.JMenu helpMenu = new javax.swing.JMenu();
+        javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
+        statusPanel = new javax.swing.JPanel();
+        javax.swing.JSeparator statusPanelSeparator = new javax.swing.JSeparator();
+        statusMessageLabel = new javax.swing.JLabel();
+        statusAnimationLabel = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
+        jFrame_bearbeiten = new javax.swing.JFrame();
+        jLabel9 = new javax.swing.JLabel();
+        jText_datum_b = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        jText_kilometer_b = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        jText_gas_b = new javax.swing.JTextField();
+        jLabel13 = new javax.swing.JLabel();
+        jText_benzin_b = new javax.swing.JTextField();
+        jButton4 = new javax.swing.JButton();
+        jLabel18 = new javax.swing.JLabel();
+        jText_gas_pb = new javax.swing.JTextField();
+        jLabel19 = new javax.swing.JLabel();
+        jText_benzin_pb = new javax.swing.JTextField();
+        mainPanel.setName("mainPanel");
+        mainPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                mainPanelComponentResized(evt);
+            }
+        });
+        mainPanel.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
+
+            public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
+            }
+
+            public void ancestorResized(java.awt.event.HierarchyEvent evt) {
+                mainPanelAncestorResized(evt);
+            }
+        });
+        jTabbedPane1.setName("jTabbedPane1");
+        jTabbedPane1.addContainerListener(new java.awt.event.ContainerAdapter() {
+
+            public void componentAdded(java.awt.event.ContainerEvent evt) {
+                jTabbedPane1ComponentAdded(evt);
+            }
+        });
+        jTabbedPane1.addFocusListener(new java.awt.event.FocusAdapter() {
+
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jTabbedPane1FocusGained(evt);
+            }
+        });
+        jPanel1.setName("jPanel1");
+        jScrollPane1.setName("jScrollPane1");
+        jTable_betankungen.setModel(tmodel_betankungen);
+        jTable_betankungen.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        jTable_betankungen.setName("jTable_betankungen");
+        jScrollPane1.setViewportView(jTable_betankungen);
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(CMbE.CMbE_App.class).getContext().getResourceMap(GUI.class);
+        jLabel1.setText(resourceMap.getString("jLabel1.text"));
+        jLabel1.setName("jLabel1");
+        jText_datum.setText(resourceMap.getString("jText_datum.text"));
+        jText_datum.setName("jText_datum");
+        jText_datum.setNextFocusableComponent(jText_kilometer);
+        jText_datum.setPreferredSize(new java.awt.Dimension(100, 20));
+        jLabel2.setText(resourceMap.getString("jLabel2.text"));
+        jLabel2.setName("jLabel2");
+        jText_kilometer.setText(resourceMap.getString("jText_kilometer.text"));
+        jText_kilometer.setName("jText_kilometer");
+        jText_kilometer.setNextFocusableComponent(jText_gas);
+        jLabel3.setText(resourceMap.getString("jLabel3.text"));
+        jLabel3.setName("jLabel3");
+        jText_gas.setText(resourceMap.getString("jText_gas.text"));
+        jText_gas.setName("jText_gas");
+        jText_gas.setNextFocusableComponent(jText_gas_p);
+        jLabel4.setText(resourceMap.getString("jLabel4.text"));
+        jLabel4.setName("jLabel4");
+        jText_benzin.setText(resourceMap.getString("jText_benzin.text"));
+        jText_benzin.setName("jText_benzin");
+        jText_benzin.setNextFocusableComponent(jText_benzin_p);
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(CMbE.CMbE_App.class).getContext().getActionMap(GUI.class, this);
+        jButton1.setAction(actionMap.get("neueBetankung"));
+        jButton1.setText(resourceMap.getString("jButton1.text"));
+        jButton1.setName("jButton1");
+        jButton1.setNextFocusableComponent(jButton2);
+        jButton2.setAction(actionMap.get("bearbeiten"));
+        jButton2.setText(resourceMap.getString("jButton2.text"));
+        jButton2.setName("jButton2");
+        jButton2.setNextFocusableComponent(jButton3);
+        jButton2.setPreferredSize(new java.awt.Dimension(90, 23));
+        jButton3.setAction(actionMap.get("removeBetankung"));
+        jButton3.setText(resourceMap.getString("jButton3.text"));
+        jButton3.setName("jButton3");
+        jButton3.setNextFocusableComponent(jText_datum);
+        jLabel15.setText(resourceMap.getString("jLabel15.text"));
+        jLabel15.setName("jLabel15");
+        jText_gas_p.setName("jText_gas_p");
+        jText_gas_p.setNextFocusableComponent(jText_benzin);
+        jLabel17.setText(resourceMap.getString("jLabel17.text"));
+        jLabel17.setName("jLabel17");
+        jText_benzin_p.setName("jText_benzin_p");
+        jText_benzin_p.setNextFocusableComponent(jButton1);
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jPanel1Layout.createSequentialGroup().addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup().addContainerGap().addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addGroup(jPanel1Layout.createSequentialGroup().addComponent(jLabel1).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jText_datum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(18, 18, 18).addComponent(jLabel2).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jText_kilometer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(18, 18, 18).addComponent(jLabel3)).addComponent(jLabel15)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jText_gas_p, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE).addComponent(jText_gas, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)).addGap(14, 14, 14).addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel4).addComponent(jLabel17)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false).addComponent(jText_benzin_p, javax.swing.GroupLayout.Alignment.LEADING).addComponent(jText_benzin, javax.swing.GroupLayout.Alignment.LEADING)).addGap(18, 18, 18).addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)).addGroup(jPanel1Layout.createSequentialGroup().addGap(10, 10, 10).addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(jButton3)).addGroup(jPanel1Layout.createSequentialGroup().addContainerGap().addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 983, Short.MAX_VALUE))).addContainerGap()));
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] { jText_benzin, jText_benzin_p, jText_datum, jText_gas, jText_gas_p, jText_kilometer });
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] { jButton2, jButton3 });
+        jPanel1Layout.setVerticalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jPanel1Layout.createSequentialGroup().addContainerGap().addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel1).addComponent(jText_datum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel2).addComponent(jLabel3).addComponent(jText_gas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel4).addComponent(jText_benzin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jText_kilometer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jButton1)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jText_gas_p, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel15).addComponent(jText_benzin_p, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel17)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 459, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jButton3)).addContainerGap()));
+        jTabbedPane1.addTab(resourceMap.getString("jPanel1.TabConstraints.tabTitle"), jPanel1);
+        jPanel2.setName("jPanel2");
+        jLabel5.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel5.setText(resourceMap.getString("jLabel5.text"));
+        jLabel5.setName("jLabel5");
+        jLabel6.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel6.setText(resourceMap.getString("jLabel6.text"));
+        jLabel6.setName("jLabel6");
+        jLabel7.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel7.setText(resourceMap.getString("jLabel7.text"));
+        jLabel7.setName("jLabel7");
+        jLabel8.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel8.setText(resourceMap.getString("jLabel8.text"));
+        jLabel8.setName("jLabel8");
+        jLabel_km.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel_km.setText(resourceMap.getString("jLabel_km.text"));
+        jLabel_km.setName("jLabel_km");
+        jLabel_b.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel_b.setText(resourceMap.getString("jLabel_b.text"));
+        jLabel_b.setName("jLabel_b");
+        jLabel_g.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel_g.setText(resourceMap.getString("jLabel_g.text"));
+        jLabel_g.setName("jLabel_g");
+        jLabel12.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel12.setText(resourceMap.getString("jLabel12.text"));
+        jLabel12.setName("jLabel12");
+        jLabel_kmJ.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel_kmJ.setText(resourceMap.getString("jLabel_kmJ.text"));
+        jLabel_kmJ.setName("jLabel_kmJ");
+        jLabel14.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel14.setText(resourceMap.getString("jLabel14.text"));
+        jLabel14.setName("jLabel14");
+        jLabel_bJ.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel_bJ.setText(resourceMap.getString("jLabel_bJ.text"));
+        jLabel_bJ.setName("jLabel_bJ");
+        jLabel16.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel16.setText(resourceMap.getString("jLabel16.text"));
+        jLabel16.setName("jLabel16");
+        jLabel_gJ.setFont(resourceMap.getFont("jLabel5.font"));
+        jLabel_gJ.setText(resourceMap.getString("jLabel_gJ.text"));
+        jLabel_gJ.setName("jLabel_gJ");
+        jLabel20.setText(resourceMap.getString("jLabel20.text"));
+        jLabel20.setName("jLabel20");
+        jLabel21.setText(resourceMap.getString("jLabel21.text"));
+        jLabel21.setName("jLabel21");
+        jLabel22.setText(resourceMap.getString("jLabel22.text"));
+        jLabel22.setName("jLabel22");
+        jLabel_gp.setText(resourceMap.getString("jLabel_gp.text"));
+        jLabel_gp.setName("jLabel_gp");
+        jLabel_bp.setText(resourceMap.getString("jLabel_bp.text"));
+        jLabel_bp.setName("jLabel_bp");
+        jLabel23.setText(resourceMap.getString("jLabel23.text"));
+        jLabel23.setName("jLabel23");
+        jLabel24.setText(resourceMap.getString("jLabel24.text"));
+        jLabel24.setName("jLabel24");
+        jLabel_gpJ.setText(resourceMap.getString("jLabel_gpJ.text"));
+        jLabel_gpJ.setName("jLabel_gpJ");
+        jLabel_bpJ.setText(resourceMap.getString("jLabel_bpJ.text"));
+        jLabel_bpJ.setName("jLabel_bpJ");
+        jLabel25.setText(resourceMap.getString("jLabel25.text"));
+        jLabel25.setName("jLabel25");
+        jLabel_bpL.setText(resourceMap.getString("jLabel_bpL.text"));
+        jLabel_bpL.setName("jLabel_bpL");
+        jLabel26.setText(resourceMap.getString("jLabel26.text"));
+        jLabel26.setName("jLabel26");
+        jLabel_gpL.setText(resourceMap.getString("jLabel_gpL.text"));
+        jLabel_gpL.setName("jLabel_gpL");
+        jLabel27.setText(resourceMap.getString("jLabel27.text"));
+        jLabel27.setName("jLabel27");
+        jText_mehr.setText(resourceMap.getString("jText_mehr.text"));
+        jText_mehr.setName("jText_mehr");
+        jText_mehr.addCaretListener(new javax.swing.event.CaretListener() {
+
+            public void caretUpdate(javax.swing.event.CaretEvent evt) {
+                jText_mehrCaretUpdate(evt);
+            }
+        });
+        jText_mehr.addInputMethodListener(new java.awt.event.InputMethodListener() {
+
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                jText_mehrInputMethodTextChanged(evt);
+            }
+        });
+        jLabel28.setText(resourceMap.getString("jLabel28.text"));
+        jLabel28.setName("jLabel28");
+        jLabel_gespart.setText(resourceMap.getString("jLabel_gespart.text"));
+        jLabel_gespart.setName("jLabel_gespart");
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jPanel2Layout.createSequentialGroup().addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jPanel2Layout.createSequentialGroup().addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jPanel2Layout.createSequentialGroup().addContainerGap().addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel6).addComponent(jLabel20)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jLabel21, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel22, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel8, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jLabel_b).addComponent(jLabel_g).addComponent(jLabel_bp).addComponent(jLabel_gp))).addGroup(jPanel2Layout.createSequentialGroup().addGap(17, 17, 17).addComponent(jLabel5).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(jLabel_km))).addGap(58, 58, 58).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jLabel24, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel23, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel16, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel14, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel12, javax.swing.GroupLayout.Alignment.TRAILING)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jLabel_gJ).addComponent(jLabel_bJ).addComponent(jLabel_gpJ).addComponent(jLabel_bpJ).addComponent(jLabel_kmJ)).addGap(43, 43, 43).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jPanel2Layout.createSequentialGroup().addComponent(jLabel26).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jLabel_gpL)).addGroup(jPanel2Layout.createSequentialGroup().addComponent(jLabel25).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jLabel_bpL)))).addGroup(jPanel2Layout.createSequentialGroup().addContainerGap().addComponent(jLabel27).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jText_mehr, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jLabel28).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(jLabel_gespart))).addContainerGap(621, Short.MAX_VALUE)));
+        jPanel2Layout.setVerticalGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jPanel2Layout.createSequentialGroup().addContainerGap().addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel5).addComponent(jLabel12).addComponent(jLabel_kmJ)).addComponent(jLabel_km)).addGap(18, 18, 18).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jPanel2Layout.createSequentialGroup().addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel8).addComponent(jLabel6).addComponent(jLabel14).addComponent(jLabel_bJ)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel7).addComponent(jLabel16).addComponent(jLabel_gJ))).addGroup(jPanel2Layout.createSequentialGroup().addComponent(jLabel_b).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(jLabel_g))).addGap(18, 18, 18).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jPanel2Layout.createSequentialGroup().addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel21).addComponent(jLabel23).addComponent(jLabel_bpJ).addComponent(jLabel20).addComponent(jLabel25).addComponent(jLabel_bpL)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel22).addComponent(jLabel24).addComponent(jLabel_gpJ).addComponent(jLabel26).addComponent(jLabel_gpL))).addGroup(jPanel2Layout.createSequentialGroup().addComponent(jLabel_bp).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(jLabel_gp))).addGap(48, 48, 48).addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel27).addComponent(jText_mehr, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel28).addComponent(jLabel_gespart)).addContainerGap(368, Short.MAX_VALUE)));
+        jTabbedPane1.addTab(resourceMap.getString("jPanel2.TabConstraints.tabTitle"), jPanel2);
+        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(mainPanelLayout);
+        mainPanelLayout.setHorizontalGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1008, Short.MAX_VALUE));
+        mainPanelLayout.setVerticalGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 603, Short.MAX_VALUE));
+        menuBar.setName("menuBar");
+        fileMenu.setText(resourceMap.getString("fileMenu.text"));
+        fileMenu.setName("fileMenu");
+        jMenuItem2.setAction(actionMap.get("createPDF"));
+        jMenuItem2.setText(resourceMap.getString("jMenuItem2.text"));
+        jMenuItem2.setName("jMenuItem2");
+        fileMenu.add(jMenuItem2);
+        jSeparator1.setName("jSeparator1");
+        fileMenu.add(jSeparator1);
+        exitMenuItem.setAction(actionMap.get("quit"));
+        exitMenuItem.setText(resourceMap.getString("exitMenuItem.text"));
+        exitMenuItem.setName("exitMenuItem");
+        fileMenu.add(exitMenuItem);
+        menuBar.add(fileMenu);
+        jMenu1.setText(resourceMap.getString("jMenu1.text"));
+        jMenu1.setName("jMenu1");
+        jMenuItem1.setAction(actionMap.get("clearBetankungen"));
+        jMenuItem1.setText(resourceMap.getString("jMenuItem1.text"));
+        jMenuItem1.setName("jMenuItem1");
+        jMenu1.add(jMenuItem1);
+        menuBar.add(jMenu1);
+        helpMenu.setText(resourceMap.getString("helpMenu.text"));
+        helpMenu.setName("helpMenu");
+        aboutMenuItem.setAction(actionMap.get("showAboutBox"));
+        aboutMenuItem.setText(resourceMap.getString("aboutMenuItem.text"));
+        aboutMenuItem.setName("aboutMenuItem");
+        helpMenu.add(aboutMenuItem);
+        menuBar.add(helpMenu);
+        statusPanel.setName("statusPanel");
+        statusPanelSeparator.setName("statusPanelSeparator");
+        statusMessageLabel.setName("statusMessageLabel");
+        statusAnimationLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        statusAnimationLabel.setName("statusAnimationLabel");
+        progressBar.setName("progressBar");
+        javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(statusPanel);
+        statusPanel.setLayout(statusPanelLayout);
+        statusPanelLayout.setHorizontalGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 1008, Short.MAX_VALUE).addGroup(statusPanelLayout.createSequentialGroup().addContainerGap().addComponent(statusMessageLabel).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 838, Short.MAX_VALUE).addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusAnimationLabel).addContainerGap()));
+        statusPanelLayout.setVerticalGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(statusPanelLayout.createSequentialGroup().addComponent(statusPanelSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(statusMessageLabel).addComponent(statusAnimationLabel).addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGap(3, 3, 3)));
+        jFrame_bearbeiten.setBounds(new java.awt.Rectangle(400, 400, 600, 150));
+        jFrame_bearbeiten.setMinimumSize(new java.awt.Dimension(600, 120));
+        jFrame_bearbeiten.setName("jFrame_bearbeiten");
+        jLabel9.setText(resourceMap.getString("jLabel9.text"));
+        jLabel9.setName("jLabel9");
+        jText_datum_b.setName("jText_datum_b");
+        jText_datum_b.setNextFocusableComponent(jText_kilometer_b);
+        jText_datum_b.setPreferredSize(new java.awt.Dimension(100, 20));
+        jLabel10.setText(resourceMap.getString("jLabel10.text"));
+        jLabel10.setName("jLabel10");
+        jText_kilometer_b.setName("jText_kilometer_b");
+        jText_kilometer_b.setNextFocusableComponent(jText_gas_b);
+        jLabel11.setText(resourceMap.getString("jLabel11.text"));
+        jLabel11.setName("jLabel11");
+        jText_gas_b.setName("jText_gas_b");
+        jText_gas_b.setNextFocusableComponent(jText_gas_pb);
+        jLabel13.setText(resourceMap.getString("jLabel13.text"));
+        jLabel13.setName("jLabel13");
+        jText_benzin_b.setName("jText_benzin_b");
+        jText_benzin_b.setNextFocusableComponent(jText_benzin_pb);
+        jButton4.setAction(actionMap.get("saveBearbeitung"));
+        jButton4.setText(resourceMap.getString("jButton4.text"));
+        jButton4.setName("jButton4");
+        jButton4.setNextFocusableComponent(jText_datum_b);
+        jLabel18.setText(resourceMap.getString("jLabel18.text"));
+        jLabel18.setName("jLabel18");
+        jText_gas_pb.setName("jText_gas_pb");
+        jText_gas_pb.setNextFocusableComponent(jText_benzin_b);
+        jLabel19.setText(resourceMap.getString("jLabel19.text"));
+        jLabel19.setName("jLabel19");
+        jText_benzin_pb.setName("jText_benzin_pb");
+        jText_benzin_pb.setNextFocusableComponent(jButton4);
+        javax.swing.GroupLayout jFrame_bearbeitenLayout = new javax.swing.GroupLayout(jFrame_bearbeiten.getContentPane());
+        jFrame_bearbeiten.getContentPane().setLayout(jFrame_bearbeitenLayout);
+        jFrame_bearbeitenLayout.setHorizontalGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jFrame_bearbeitenLayout.createSequentialGroup().addContainerGap().addGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jFrame_bearbeitenLayout.createSequentialGroup().addComponent(jLabel9).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)).addGroup(jFrame_bearbeitenLayout.createSequentialGroup().addGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel18).addComponent(jLabel11)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))).addGap(6, 6, 6).addGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jText_gas_b, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE).addComponent(jText_datum_b, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(jText_gas_pb, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jFrame_bearbeitenLayout.createSequentialGroup().addComponent(jLabel10).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jText_kilometer_b, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jFrame_bearbeitenLayout.createSequentialGroup().addGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel19).addComponent(jLabel13)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false).addComponent(jText_benzin_pb).addComponent(jText_benzin_b)))).addGap(18, 18, 18).addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE).addContainerGap()));
+        jFrame_bearbeitenLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] { jText_benzin_b, jText_benzin_pb, jText_datum_b, jText_gas_b, jText_gas_pb, jText_kilometer_b });
+        jFrame_bearbeitenLayout.setVerticalGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(jFrame_bearbeitenLayout.createSequentialGroup().addContainerGap().addGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel9).addComponent(jText_datum_b, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel10).addComponent(jText_kilometer_b, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jButton4)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel11).addComponent(jText_gas_b, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel13).addComponent(jText_benzin_b, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addGroup(jFrame_bearbeitenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jText_gas_pb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel18).addComponent(jLabel19).addComponent(jText_benzin_pb, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
+        setComponent(mainPanel);
+        setMenuBar(menuBar);
+        setStatusBar(statusPanel);
+    }
+
+    private void mainPanelComponentResized(java.awt.event.ComponentEvent evt) {
+    }
+
+    private void jTabbedPane1ComponentAdded(java.awt.event.ContainerEvent evt) {
+        jTabbedPane1.setSelectedIndex(0);
+    }
+
+    private void jTabbedPane1FocusGained(java.awt.event.FocusEvent evt) {
+        if (start) {
+            jTabbedPane1.setSelectedIndex(0);
+        }
+        start = false;
+    }
+
+    private void jText_mehrInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+    }
+
+    private void jText_mehrCaretUpdate(javax.swing.event.CaretEvent evt) {
+        refreshStatistic();
+    }
+
+    private void mainPanelAncestorResized(java.awt.event.HierarchyEvent evt) {
+    }
+
+    Object[] leer = null;
+
+    boolean start;
+
+    ArrayList<Betankung> betankungen = new ArrayList<Betankung>();
+
+    ArrayList<Betankung> betankungen_g = new ArrayList<Betankung>();
+
+    ArrayList<Betankung> betankungen_b = new ArrayList<Betankung>();
+
+    JFreeChart chart;
+
+    ChartPanel p;
+
+    JFreeChart chart_g;
+
+    ChartPanel p_g;
+
+    JFreeChart chart_b;
+
+    ChartPanel p_b;
+
+    JFreeChart chart_gP;
+
+    ChartPanel p_gP;
+
+    public static Double durchschnitt;
+
+    public static Double durchschnitt_g;
+
+    public static Double durchschnitt_b;
+
+    public static DecimalFormat f = new DecimalFormat("#0.00", DecimalFormatSymbols.getInstance(Locale.US));
+
+    Betankung bearb;
+
+    public static DefaultTableModel tmodel_betankungen = (new javax.swing.table.DefaultTableModel(new Object[][] {}, new String[] { "Datum", "Kilometerstand", "seit letzter Betankung", "Liter Gas", "Liter Benzin", "Betrag Gas [€]", "Betrag Benzin [€]", "Verbrauch gesamt", "Verbrauch Gas" }) {
+
+        Class[] types = new Class[] { java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.String.class, java.lang.String.class };
+
+        boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false, false, false };
+
+        public Class getColumnClass(int columnIndex) {
+            return types[columnIndex];
+        }
+
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return canEdit[columnIndex];
+        }
+    });
+
+    /**
+     * Zeigt neuen Dialog mit Meldung im gewählten Meldungs-Typ
+     *
+     * @param Meldung   Text der Meldung
+     * @param title     Titel der Meldung
+     * @param type      Typ; sind in JOptionPane definiert
+     */
+    public static void show_Dialog(String Meldung, String title, int type) {
+        JOptionPane.showMessageDialog(null, Meldung, title, type);
+    }
+
+    @Action
+    public void neueBetankung() {
+        Betankung nb = new Betankung(nextID());
+        boolean ok = true;
+        try {
+            GregorianCalendar c = new GregorianCalendar();
+            String[] date = jText_datum.getText().split("\\.");
+            c.set(Integer.valueOf(date[2]), Integer.valueOf(date[1]) - 1, Integer.valueOf(date[0]), 1, 0, 0);
+            nb.setDatum(c.getTime());
+            if (!jText_gas.getText().isEmpty()) {
+                nb.setGas(Double.valueOf(jText_gas.getText().replace(",", ".")));
+            } else {
+                nb.setGas(null);
+            }
+            nb.setKilometer(Integer.valueOf(jText_kilometer.getText()));
+            if (!jText_benzin.getText().isEmpty()) {
+                nb.setBenzin(Double.valueOf(jText_benzin.getText().replace(",", ".")));
+            } else {
+                nb.setBenzin(null);
+            }
+            if (!jText_benzin_p.getText().isEmpty()) {
+                nb.setP_benzin(Double.valueOf(jText_benzin_p.getText().replace(",", ".")));
+            } else {
+                nb.setP_benzin(null);
+            }
+            if (!jText_gas_p.getText().isEmpty()) {
+                nb.setP_gas(Double.valueOf(jText_gas_p.getText().replace(",", ".")));
+            } else {
+                nb.setP_gas(null);
+            }
+            if (nb.getBenzin() == null && nb.getGas() == null) {
+                ok = false;
+                show_Dialog("Bitte überprüfen sie ihre Eingabe!", "Fehler", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (NumberFormatException nf) {
+            ok = false;
+            show_Dialog("Bitte überprüfen sie ihre Eingabe!", "Fehler", JOptionPane.WARNING_MESSAGE);
+        } catch (ArrayIndexOutOfBoundsException a) {
+            ok = false;
+            show_Dialog("Bitte überprüfen sie das eingegebene Datum!", "Fehler", JOptionPane.WARNING_MESSAGE);
+        }
+        if (ok) {
+            System.out.println("neue Betankung:");
+            System.out.println(nb.toString());
+            betankungen.add(nb);
+            sortBetankungen();
+            refreshTable();
+            showDiagram();
+            refreshStatistic();
+            save();
+        }
+    }
+
+    public void refreshStatistic() {
+        int gesamt_km = 0;
+        if (betankungen.size() > 0) {
+            gesamt_km = betankungen.get(betankungen.size() - 1).getKilometer() - betankungen.get(0).getKilometer();
+        }
+        double liter_g = 0.0;
+        double liter_b = 0.0;
+        double betrag_g = 0.0;
+        double betrag_b = 0.0;
+        double liter_gp = 0.0;
+        double liter_bp = 0.0;
+        for (Betankung b : betankungen_g) {
+            liter_g += b.getGas();
+            if (b.getP_gas() != null) {
+                betrag_g += b.getP_gas();
+                liter_gp += b.getGas();
+            }
+        }
+        for (Betankung b : betankungen_b) {
+            liter_b += b.getBenzin();
+            if (b.getP_benzin() != null) {
+                betrag_b += b.getP_benzin();
+                liter_bp += b.getBenzin();
+            }
+        }
+        int tage = 0;
+        if (betankungen.size() > 0) {
+            tage = getTage(betankungen.get(0).getDatum(), betankungen.get(betankungen.size() - 1).getDatum());
+            System.out.println("tage: " + tage);
+        }
+        jLabel_km.setText(String.valueOf(gesamt_km) + " km");
+        jLabel_b.setText((f.format(liter_b)) + " l");
+        jLabel_g.setText((f.format(liter_g)) + " l");
+        jLabel_bp.setText((f.format(betrag_b)) + " €");
+        jLabel_gp.setText((f.format(betrag_g)) + " €");
+        if (tage > 0) {
+            jLabel_kmJ.setText(String.valueOf(gesamt_km * 365 / tage) + " km");
+            jLabel_bJ.setText((f.format(liter_b * 365 / tage)) + " l");
+            jLabel_gJ.setText((f.format(liter_g * 365 / tage)) + " l");
+            jLabel_bpJ.setText((f.format(betrag_b * 365 / tage)) + " €");
+            jLabel_gpJ.setText((f.format(betrag_g * 365 / tage)) + " €");
+        } else {
+            jLabel_kmJ.setText("0.00 km");
+            jLabel_bJ.setText("0.00 l");
+            jLabel_gJ.setText("0.00 l");
+            jLabel_bpJ.setText("0.00 €");
+            jLabel_gpJ.setText("0.00 €");
+        }
+        if (liter_gp > 0) {
+            jLabel_gpL.setText((f.format(betrag_g / liter_gp)) + " €");
+        } else {
+            jLabel_gpL.setText("0.00 €");
+        }
+        if (liter_bp > 0) {
+            jLabel_bpL.setText((f.format(betrag_b / liter_bp)) + " €");
+        } else {
+            jLabel_bpL.setText("0.00 €");
+        }
+        double ohne_mehr = (liter_b + liter_g) / (1 + (Double.valueOf(jText_mehr.getText()) / 100));
+        jLabel_gespart.setText(f.format(((betrag_b / liter_bp) * ohne_mehr) - (liter_b * (betrag_b / liter_bp) + liter_g * (betrag_g / liter_gp))) + " €");
+    }
+
+    public int getTage(Date von, Date bis) {
+        int tage = 0;
+        Calendar cal_1 = new GregorianCalendar();
+        Calendar cal_2 = new GregorianCalendar();
+        cal_1.setTime(von);
+        cal_2.setTime(bis);
+        long time = cal_2.getTime().getTime() - cal_1.getTime().getTime();
+        tage = (int) Math.ceil((double) time / (24 * 60 * 60 * 1000));
+        return tage;
+    }
+
+    public int nextID() {
+        int next = -1;
+        next = betankungen.size();
+        return next;
+    }
+
+    public void refreshTable() {
+        while (tmodel_betankungen.getRowCount() != 0) {
+            tmodel_betankungen.removeRow(0);
+        }
+        for (int i = 0; i < betankungen.size(); i++) {
+            Betankung b = betankungen.get(i);
+            Betankung pre = null;
+            if (i != 0) {
+                pre = betankungen.get(i - 1);
+            }
+            tmodel_betankungen.addRow(leer);
+            jTable_betankungen.setValueAt(formatDatum(b.getDatum()), jTable_betankungen.getRowCount() - 1, 0);
+            jTable_betankungen.setValueAt(b.getKilometer(), jTable_betankungen.getRowCount() - 1, 1);
+            if (pre == null) {
+                jTable_betankungen.setValueAt(0, jTable_betankungen.getRowCount() - 1, 2);
+            } else {
+                if (b.getGas() != null && b.getGas() > 0 && b.getBenzin() != null && b.getBenzin() > 0) {
+                    int gkm = b.getKilometer() - betankungen_g.get(betankungen_g.indexOf(b) - 1).getKilometer();
+                    int bkm = b.getKilometer() - betankungen_b.get(betankungen_b.indexOf(b) - 1).getKilometer();
+                    jTable_betankungen.setValueAt("Gas: " + gkm + " km   Benzin: " + bkm + " km", jTable_betankungen.getRowCount() - 1, 2);
+                } else {
+                    if (b.getGas() != null && b.getGas() > 0) {
+                        if (betankungen_g.indexOf(b) == 0) {
+                            jTable_betankungen.setValueAt(0, jTable_betankungen.getRowCount() - 1, 2);
+                        } else {
+                            int gkm = b.getKilometer() - betankungen_g.get(betankungen_g.indexOf(b) - 1).getKilometer();
+                            jTable_betankungen.setValueAt("Gas: " + gkm + " km", jTable_betankungen.getRowCount() - 1, 2);
+                        }
+                    }
+                    if (b.getBenzin() != null && b.getBenzin() > 0) {
+                        if (betankungen_b.indexOf(b) == 0) {
+                            jTable_betankungen.setValueAt(0, jTable_betankungen.getRowCount() - 1, 2);
+                        } else {
+                            int bkm = b.getKilometer() - betankungen_b.get(betankungen_b.indexOf(b) - 1).getKilometer();
+                            jTable_betankungen.setValueAt("Benzin: " + bkm + " km", jTable_betankungen.getRowCount() - 1, 2);
+                        }
+                    }
+                }
+            }
+            jTable_betankungen.setValueAt(b.getGas(), jTable_betankungen.getRowCount() - 1, 3);
+            jTable_betankungen.setValueAt(b.getBenzin(), jTable_betankungen.getRowCount() - 1, 4);
+            jTable_betankungen.setValueAt(b.getP_gas(), jTable_betankungen.getRowCount() - 1, 5);
+            jTable_betankungen.setValueAt(b.getP_benzin(), jTable_betankungen.getRowCount() - 1, 6);
+            if (b.getGas() != null && b.getGas() > 0) {
+                if (betankungen_g.indexOf(b) > 0) {
+                    jTable_betankungen.setValueAt("~ " + f.format(calcVerbrauchGas(b, betankungen_g.get(betankungen_g.indexOf(b) - 1))), jTable_betankungen.getRowCount() - 1, 7);
+                    jTable_betankungen.setValueAt(f.format(calcVerbrauchGas(b, betankungen_g.get(betankungen_g.indexOf(b) - 1))), jTable_betankungen.getRowCount() - 1, 8);
+                }
+            }
+            if (b.getBenzin() != null && b.getBenzin() > 0) {
+                if (betankungen_b.indexOf(b) > 0) {
+                    double vb = calcVerbrauchBenzin(b, betankungen_b.get(betankungen_b.indexOf(b) - 1));
+                    if (b.getGas() != null && b.getGas() > 0) {
+                        for (int j = betankungen.indexOf(b); j > betankungen.indexOf(betankungen_b.get(betankungen_b.indexOf(b) - 1)); j--) {
+                            if (betankungen_g.indexOf(betankungen.get(j)) > 0) {
+                                Double v_alt = Double.valueOf(((String) jTable_betankungen.getValueAt(j, 7)).substring(2));
+                                jTable_betankungen.setValueAt(f.format(v_alt + vb), j, 7);
+                                System.out.println("Verbrauch in Zeile " + j + " korrigiert! -> alt: " + v_alt + " neu: " + (v_alt + vb));
+                            }
+                        }
+                    } else {
+                        for (int j = betankungen.indexOf(b) - 1; j > betankungen.indexOf(betankungen_b.get(betankungen_b.indexOf(b) - 1)); j--) {
+                            if (betankungen_g.indexOf(betankungen.get(j)) > 0) {
+                                Double v_alt = Double.valueOf(((String) jTable_betankungen.getValueAt(j, 7)).substring(2));
+                                jTable_betankungen.setValueAt(f.format(v_alt + vb), j, 7);
+                                System.out.println("Verbrauch in Zeile " + j + " korrigiert! -> alt: " + v_alt + " neu: " + (v_alt + vb));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public String formatDatum(Date d) {
+        GregorianCalendar c = new GregorianCalendar();
+        c.setTime(d);
+        String tag;
+        if (c.get(GregorianCalendar.DAY_OF_MONTH) < 10) {
+            tag = "0" + String.valueOf(c.get(GregorianCalendar.DAY_OF_MONTH));
+        } else {
+            tag = String.valueOf(c.get(GregorianCalendar.DAY_OF_MONTH));
+        }
+        String monat;
+        if (c.get(GregorianCalendar.MONTH) + 1 < 10) {
+            monat = "0" + String.valueOf(c.get(GregorianCalendar.MONTH) + 1);
+        } else {
+            monat = String.valueOf(c.get(GregorianCalendar.MONTH) + 1);
+        }
+        return tag + "." + monat + "." + c.get(GregorianCalendar.YEAR);
+    }
+
+    public Double calcVerbrauchGas(Betankung b, Betankung pre) {
+        double v = -1;
+        int km = b.getKilometer() - pre.getKilometer();
+        v = b.getGas() / km * 100;
+        return v;
+    }
+
+    public Double calcVerbrauchBenzin(Betankung b, Betankung pre) {
+        double v = -1;
+        int km = b.getKilometer() - pre.getKilometer();
+        v = b.getBenzin() / km * 100;
+        return v;
+    }
+
+    public void save() {
+        try {
+            XMLEncoder o = new XMLEncoder(new BufferedOutputStream(new FileOutputStream("Tankmanager.save")));
+            o.writeObject(betankungen);
+            o.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void load() {
+        File fi = new File("Tankmanager.save");
+        ((JLabel) jTable_betankungen.getDefaultRenderer(String.class)).setHorizontalAlignment(JLabel.RIGHT);
+        if (fi.exists()) {
+            try {
+                XMLDecoder d = null;
+                d = new XMLDecoder(new BufferedInputStream(new FileInputStream(fi)));
+                betankungen = (ArrayList<Betankung>) d.readObject();
+                d.close();
+                sortBetankungen();
+                refreshTable();
+                showDiagram();
+                refreshStatistic();
+                jTabbedPane1.setSelectedIndex(0);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    @Action
+    public void clearBetankungen() {
+        if (show_confirm_Dialog("Sollen wirklich ALLE Betankungen gelöscht werden?", "Sicher?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            betankungen.clear();
+            betankungen_g.clear();
+            betankungen_b.clear();
+            refreshTable();
+            showDiagram();
+            refreshStatistic();
+        }
+    }
+
+    /**
+     * Zeigt neuen Dialog mit Meldung im gewählten Meldungs-Typ, Fenster liefert Rückgabewert
+     *
+     * @param Meldung   Text der Meldung
+     * @param title     Titel der Meldung
+     * @param type      Typ; sind in JOptionPane definiert
+     */
+    public static int show_confirm_Dialog(String Meldung, String title, int type) {
+        return JOptionPane.showConfirmDialog(null, Meldung, title, type);
+    }
+
+    public void showDiagram() {
+        if (jTabbedPane1.getComponentCount() > 2) {
+            jTabbedPane1.remove(jTabbedPane1.getComponentCount() - 1);
+            jTabbedPane1.remove(jTabbedPane1.getComponentCount() - 1);
+            jTabbedPane1.remove(jTabbedPane1.getComponentCount() - 1);
+            jTabbedPane1.remove(jTabbedPane1.getComponentCount() - 1);
+        }
+        final String series1 = "Verbrauch gesamt";
+        final String series2 = "Verbrauch Gas";
+        final String series3 = "Verbrauch Benzin";
+        final String series4 = "Gaspreis";
+        final String series5 = "Benzinpreis";
+        final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        final DefaultCategoryDataset dataset_g = new DefaultCategoryDataset();
+        final DefaultCategoryDataset dataset_b = new DefaultCategoryDataset();
+        final DefaultCategoryDataset dataset_gP = new DefaultCategoryDataset();
+        durchschnitt = 0.0;
+        durchschnitt_g = 0.0;
+        durchschnitt_b = 0.0;
+        int cnt = 0;
+        int cnt_g = 0;
+        int cnt_b = 0;
+        for (int i = 0; i < jTable_betankungen.getRowCount(); i++) {
+            if (jTable_betankungen.getValueAt(i, 7) != null && !String.valueOf(jTable_betankungen.getValueAt(i, 7)).contains("~")) {
+                dataset.addValue(Double.valueOf(String.valueOf(jTable_betankungen.getValueAt(i, 7))), series1, i + " " + String.valueOf(jTable_betankungen.getValueAt(i, 0)));
+                durchschnitt += Double.valueOf(String.valueOf(jTable_betankungen.getValueAt(i, 7)));
+                cnt++;
+            }
+            if (jTable_betankungen.getValueAt(i, 8) != null) {
+                dataset_g.addValue(Double.valueOf(String.valueOf(jTable_betankungen.getValueAt(i, 8))), series2, i + " " + String.valueOf(jTable_betankungen.getValueAt(i, 0)));
+                durchschnitt_g += Double.valueOf(String.valueOf(jTable_betankungen.getValueAt(i, 8)));
+                cnt_g++;
+            }
+            if (i != 0 && String.valueOf(jTable_betankungen.getValueAt(i, 2)).contains("Benzin")) {
+                dataset_b.addValue(Double.valueOf(String.valueOf(jTable_betankungen.getValueAt(i - 1, 7))) - Double.valueOf(String.valueOf(jTable_betankungen.getValueAt(i - 1, 8))), series3, i + " " + String.valueOf(jTable_betankungen.getValueAt(i, 0)));
+                durchschnitt_b += Double.valueOf(String.valueOf(jTable_betankungen.getValueAt(i - 1, 7))) - Double.valueOf(String.valueOf(jTable_betankungen.getValueAt(i - 1, 8)));
+                cnt_b++;
+            }
+            if (jTable_betankungen.getValueAt(i, 5) != null) {
+                dataset_gP.addValue(Double.valueOf(String.valueOf(jTable_betankungen.getValueAt(i, 5))) / Double.valueOf(String.valueOf(jTable_betankungen.getValueAt(i, 3))), series4, i + " " + String.valueOf(jTable_betankungen.getValueAt(i, 0)));
+            }
+        }
+        chart = ChartFactory.createBarChart3D(null, "Datum", "l / 100km", dataset, PlotOrientation.VERTICAL, false, true, false);
+        chart_g = ChartFactory.createBarChart3D(null, "Datum", "l / 100km", dataset_g, PlotOrientation.VERTICAL, false, true, false);
+        chart_b = ChartFactory.createBarChart3D(null, "Datum", "l / 100km", dataset_b, PlotOrientation.VERTICAL, false, true, false);
+        chart_gP = ChartFactory.createLineChart(null, "Datum", "€", dataset_gP, PlotOrientation.VERTICAL, false, true, false);
+        durchschnitt /= cnt;
+        durchschnitt_g /= cnt_g;
+        durchschnitt_b /= cnt_b;
+        ValueMarker m = new ValueMarker(durchschnitt);
+        m.setAlpha(0.9f);
+        ValueMarker m_g = new ValueMarker(durchschnitt_g);
+        m_g.setAlpha(0.9f);
+        ValueMarker m_b = new ValueMarker(durchschnitt_b);
+        m_b.setAlpha(0.9f);
+        chart.getCategoryPlot().addRangeMarker(m);
+        chart.setTitle("Durchschnittsverbrauch gesamt: " + f.format(durchschnitt) + "  l / 100km");
+        chart_g.getCategoryPlot().addRangeMarker(m_g);
+        chart_g.setTitle("Durchschnittsverbrauch Gas: " + f.format(durchschnitt_g) + "  l / 100km");
+        chart_b.getCategoryPlot().addRangeMarker(m_b);
+        chart_b.setTitle("Durchschnittsverbrauch Benzin: " + f.format(durchschnitt_b) + "  l / 100km");
+        p = new ChartPanel(chart);
+        p.setName("Verbrauchsdiagramm gesamt");
+        p_g = new ChartPanel(chart_g);
+        p_g.setName("Verbrauchsdiagramm Gas");
+        p_b = new ChartPanel(chart_b);
+        p_b.setName("Verbrauchsdiagramm Benzin");
+        p_gP = new ChartPanel(chart_gP);
+        p_gP.setName("Preisentwicklung");
+        jTabbedPane1.add(p);
+        jTabbedPane1.add(p_g);
+        jTabbedPane1.add(p_b);
+        jTabbedPane1.add(p_gP);
+        jTabbedPane1.setSelectedIndex(0);
+    }
+
+    @Action
+    public void bearbeiten() {
+        if (jTable_betankungen.getSelectedRowCount() == 1) {
+            jFrame_bearbeiten.setVisible(true);
+            bearb = betankungen.get(jTable_betankungen.getSelectedRow());
+            Calendar c = new GregorianCalendar();
+            c.setTime(bearb.getDatum());
+            String d = c.get(Calendar.DAY_OF_MONTH) + "." + (c.get(Calendar.MONTH) + 1) + "." + c.get(Calendar.YEAR);
+            jText_datum_b.setText(d);
+            jText_kilometer_b.setText(String.valueOf(bearb.getKilometer()));
+            if (bearb.getGas() != null) {
+                jText_gas_b.setText(String.valueOf(bearb.getGas()));
+            } else {
+                jText_gas_b.setText("");
+            }
+            if (bearb.getBenzin() != null) {
+                jText_benzin_b.setText(String.valueOf(bearb.getBenzin()));
+            } else {
+                jText_benzin_b.setText("");
+            }
+            if (bearb.getP_gas() != null) {
+                jText_gas_pb.setText(String.valueOf(bearb.getP_gas()));
+            } else {
+                jText_gas_pb.setText("");
+            }
+            if (bearb.getP_benzin() != null) {
+                jText_benzin_pb.setText(String.valueOf(bearb.getP_benzin()));
+            } else {
+                jText_benzin_pb.setText("");
+            }
+        }
+    }
+
+    public void sortBetankungen() {
+        betankungen_b.clear();
+        betankungen_g.clear();
+        for (Betankung b : betankungen) {
+            if (b.getBenzin() != null && b.getBenzin() > 0) {
+                betankungen_b.add(b);
+            }
+            if (b.getGas() != null && b.getGas() > 0) {
+                betankungen_g.add(b);
+            }
+        }
+    }
+
+    @Action
+    public void saveBearbeitung() {
+        Betankung b = bearb;
+        GregorianCalendar cc = new GregorianCalendar();
+        String[] date = jText_datum_b.getText().split("\\.");
+        cc.set(Integer.valueOf(date[2]), Integer.valueOf(date[1]) - 1, Integer.valueOf(date[0]), 1, 0, 0);
+        b.setDatum(cc.getTime());
+        if (!jText_gas_b.getText().isEmpty()) {
+            b.setGas(Double.valueOf(jText_gas_b.getText().replace(",", ".")));
+        } else {
+            b.setGas(null);
+        }
+        if (!jText_gas_pb.getText().isEmpty()) {
+            b.setP_gas(Double.valueOf(jText_gas_pb.getText().replace(",", ".")));
+        } else {
+            b.setP_gas(null);
+        }
+        b.setKilometer(Integer.valueOf(jText_kilometer_b.getText()));
+        if (!jText_benzin_b.getText().isEmpty()) {
+            b.setBenzin(Double.valueOf(jText_benzin_b.getText().replace(",", ".")));
+        } else {
+            b.setBenzin(null);
+        }
+        if (!jText_benzin_pb.getText().isEmpty()) {
+            b.setP_benzin(Double.valueOf(jText_benzin_pb.getText().replace(",", ".")));
+        } else {
+            b.setP_benzin(null);
+        }
+        jFrame_bearbeiten.dispose();
+        sortBetankungen();
+        refreshTable();
+        showDiagram();
+        refreshStatistic();
+        save();
+    }
+
+    @Action
+    public void removeBetankung() {
+        if (jTable_betankungen.getSelectedRowCount() == 1 && show_confirm_Dialog("Soll die markierte Betankung wirklich gelöscht werden?", "Sicher?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            betankungen.remove(jTable_betankungen.getSelectedRow());
+            sortBetankungen();
+            refreshTable();
+            showDiagram();
+            refreshStatistic();
+            save();
+        }
+    }
+
+    @Action
+    public void createPDF() {
+        Ausdruck.oeffnePDF(Ausdruck.neueStatistik());
+    }
+
+    private javax.swing.JButton jButton1;
+
+    private javax.swing.JButton jButton2;
+
+    private javax.swing.JButton jButton3;
+
+    private javax.swing.JButton jButton4;
+
+    private javax.swing.JFrame jFrame_bearbeiten;
+
+    private javax.swing.JLabel jLabel1;
+
+    private javax.swing.JLabel jLabel10;
+
+    private javax.swing.JLabel jLabel11;
+
+    private javax.swing.JLabel jLabel12;
+
+    private javax.swing.JLabel jLabel13;
+
+    private javax.swing.JLabel jLabel14;
+
+    private javax.swing.JLabel jLabel15;
+
+    private javax.swing.JLabel jLabel16;
+
+    private javax.swing.JLabel jLabel17;
+
+    private javax.swing.JLabel jLabel18;
+
+    private javax.swing.JLabel jLabel19;
+
+    private javax.swing.JLabel jLabel2;
+
+    private javax.swing.JLabel jLabel20;
+
+    private javax.swing.JLabel jLabel21;
+
+    private javax.swing.JLabel jLabel22;
+
+    private javax.swing.JLabel jLabel23;
+
+    private javax.swing.JLabel jLabel24;
+
+    private javax.swing.JLabel jLabel25;
+
+    private javax.swing.JLabel jLabel26;
+
+    private javax.swing.JLabel jLabel27;
+
+    private javax.swing.JLabel jLabel28;
+
+    private javax.swing.JLabel jLabel3;
+
+    private javax.swing.JLabel jLabel4;
+
+    private javax.swing.JLabel jLabel5;
+
+    private javax.swing.JLabel jLabel6;
+
+    private javax.swing.JLabel jLabel7;
+
+    private javax.swing.JLabel jLabel8;
+
+    private javax.swing.JLabel jLabel9;
+
+    public static javax.swing.JLabel jLabel_b;
+
+    public static javax.swing.JLabel jLabel_bJ;
+
+    public static javax.swing.JLabel jLabel_bp;
+
+    public static javax.swing.JLabel jLabel_bpJ;
+
+    public static javax.swing.JLabel jLabel_bpL;
+
+    public static javax.swing.JLabel jLabel_g;
+
+    public static javax.swing.JLabel jLabel_gJ;
+
+    public static javax.swing.JLabel jLabel_gespart;
+
+    public static javax.swing.JLabel jLabel_gp;
+
+    public static javax.swing.JLabel jLabel_gpJ;
+
+    public static javax.swing.JLabel jLabel_gpL;
+
+    public static javax.swing.JLabel jLabel_km;
+
+    public static javax.swing.JLabel jLabel_kmJ;
+
+    private javax.swing.JMenu jMenu1;
+
+    private javax.swing.JMenuItem jMenuItem1;
+
+    private javax.swing.JMenuItem jMenuItem2;
+
+    private javax.swing.JPanel jPanel1;
+
+    private javax.swing.JPanel jPanel2;
+
+    private javax.swing.JScrollPane jScrollPane1;
+
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+
+    private javax.swing.JTabbedPane jTabbedPane1;
+
+    public static javax.swing.JTable jTable_betankungen;
+
+    private javax.swing.JTextField jText_benzin;
+
+    private javax.swing.JTextField jText_benzin_b;
+
+    private javax.swing.JTextField jText_benzin_p;
+
+    private javax.swing.JTextField jText_benzin_pb;
+
+    private javax.swing.JTextField jText_datum;
+
+    private javax.swing.JTextField jText_datum_b;
+
+    private javax.swing.JTextField jText_gas;
+
+    private javax.swing.JTextField jText_gas_b;
+
+    private javax.swing.JTextField jText_gas_p;
+
+    private javax.swing.JTextField jText_gas_pb;
+
+    private javax.swing.JTextField jText_kilometer;
+
+    private javax.swing.JTextField jText_kilometer_b;
+
+    public static javax.swing.JTextField jText_mehr;
+
+    private javax.swing.JPanel mainPanel;
+
+    private javax.swing.JMenuBar menuBar;
+
+    private javax.swing.JProgressBar progressBar;
+
+    private javax.swing.JLabel statusAnimationLabel;
+
+    private javax.swing.JLabel statusMessageLabel;
+
+    private javax.swing.JPanel statusPanel;
+
+    private final Timer messageTimer;
+
+    private final Timer busyIconTimer;
+
+    private final Icon idleIcon;
+
+    private final Icon[] busyIcons = new Icon[15];
+
+    private int busyIconIndex = 0;
+
+    private JDialog aboutBox;
+}

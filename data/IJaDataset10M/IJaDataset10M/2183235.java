@@ -1,0 +1,10 @@
+package com.jeantessier.classreader.impl;
+
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import static org.junit.runners.Suite.SuiteClasses;
+
+@RunWith(Suite.class)
+@SuiteClasses({ TestInterfaceMethodRef_info.class, TestField_info.class, TestMethod_info.class, TestInstruction.class, TestConstantValue_attribute.class, TestCode_attribute.class, TestExceptions_attribute.class, TestInnerClasses_attribute.class, TestEnclosingMethod_attribute.class, TestSynthetic_attribute.class, TestSignature_attribute.class, TestSourceFile_attribute.class, TestSourceDebugExtension_attribute.class, TestLineNumberTable_attribute.class, TestLocalVariableTable_attribute.class, TestLocalVariableTypeTable_attribute.class, TestDeprecated_attribute.class, TestByteConstantElementValue.class, TestCharConstantElementValue.class, TestDoubleConstantElementValue.class, TestFloatConstantElementValue.class, TestIntegerConstantElementValue.class, TestLongConstantElementValue.class, TestShortConstantElementValue.class, TestBooleanConstantElementValue.class, TestStringConstantElementValue.class, TestEnumElementValue.class, TestClassElementValue.class, TestAnnotationElementValue.class, TestArrayElementValue.class, TestElementValueFactory.class, TestArrayElementValueWithContent.class, TestElementValuePair.class, TestAnnotation.class, TestAnnotationWithElementValues.class, TestRuntimeVisibleAnnotations_attribute.class, TestRuntimeVisibleAnnotations_attributeWithAnnotations.class, TestRuntimeInvisibleAnnotations_attribute.class, TestRuntimeInvisibleAnnotations_attributeWithAnnotations.class, TestParameter.class, TestParameterWithAnnotations.class, TestRuntimeVisibleParameterAnnotations_attribute.class, TestRuntimeVisibleParameterAnnotations_attributeWithAnnotations.class, TestRuntimeInvisibleParameterAnnotations_attribute.class, TestRuntimeInvisibleParameterAnnotations_attributeWithAnnotations.class, TestAnnotationDefault_attribute.class, TestCustom_attribute.class, TestAttributeFactory.class, TestClass_info.class, TestClassfile.class })
+public class TestAll {
+}
